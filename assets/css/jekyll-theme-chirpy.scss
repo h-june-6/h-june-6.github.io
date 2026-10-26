@@ -1,0 +1,36 @@
+---
+---
+
+@use "main";
+
+
+html[data-mode="dark"] {
+  --main-bg:            #0d1117;   /* 전체 배경 */
+  --mask-bg:            #161b22;   /* 로딩 마스크 */
+  --sidebar-bg:         #010409;   /* 사이드바 배경 (더 진한 검정) */
+  --card-bg:            #161b22;   /* 카드 배경 */
+  --card-border-color:  #21262d;
+
+  --text-color:         #c9d1d9;   /* 본문 글씨 */
+  --text-muted-color:   #8b949e;   /* 흐린 글씨 */
+  --heading-color:      #e6edf3;   /* 제목 */
+
+  /* 포인트 색 — 네온 그린 */
+  --link-color:         #00ff9c;
+  --link-underline-color: #00ff9c;
+
+  /* 사이드바 */
+  --sidebar-active-color: #00ff9c;
+  --site-title-color:   #00ff9c;
+  --site-subtitle-color: #8b949e;
+
+  /* 코드 인라인 */
+  --code-color:         #00ff9c;
+  --highlight-bg-color: #0a0e14;   /* 코드블록 배경 */
+  --highlighter-rouge-color: #00ff9c;
+
+  /* 태그 */
+  --tag-bg:             #21262d;
+  --tag-hover:          #00ff9c;
+  --btn-border-color:   #30363d;
+}
