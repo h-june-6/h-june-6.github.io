@@ -25,11 +25,12 @@
           <span>{{ site.data.locales[include.lang].tabs.home | upcase }}</span>
         </a>
       </li>
-      <!-- category group (collapsible) -->
+      <!-- 카테고리 (collapsible, lists the category tabs) -->
       {%- assign cat_tabs = site.tabs | where: 'group', 'category' -%}
       {%- assign cat_open = false -%}
-      {%- for tab in cat_tabs -%}
-        {%- if tab.url == page.url -%}{%- assign cat_open = true -%}{%- endif -%}
+      {%- if page.layout == 'category' -%}{%- assign cat_open = true -%}{%- endif -%}
+      {%- for ct in cat_tabs -%}
+        {%- if ct.url == page.url -%}{%- assign cat_open = true -%}{%- endif -%}
       {%- endfor -%}
       <li class="nav-item nav-group">
         <details{% if cat_open %} open{% endif %}>
@@ -39,10 +40,10 @@
             <i class="fas fa-chevron-down nav-caret"></i>
           </summary>
           <ul class="nav sub-nav">
-            {% for tab in cat_tabs %}
-              <li class="nav-item{% if tab.url == page.url %}{{ " active" }}{% endif %}">
-                <a href="{{ tab.url | relative_url }}" class="nav-link">
-                  <span>{{ tab.title }}</span>
+            {% for ct in cat_tabs %}
+              <li class="nav-item{% if ct.url == page.url %}{{ " active" }}{% endif %}">
+                <a href="{{ ct.url | relative_url }}" class="nav-link">
+                  <span>{{ ct.title }}</span>
                 </a>
               </li>
             {% endfor %}
