@@ -3,16 +3,11 @@
 - type: github
   icon: "fab fa-github"
 
-- type: twitter
-  icon: "fa-brands fa-x-twitter"
-
-- type: email
+- type: gmail
   icon: "fas fa-envelope"
-  noblank: true # open link in current tab
+  url: "https://mail.google.com/mail/?view=cm&fs=1&to=kimhojun10208@gmail.com"
 
-- type: rss
-  icon: "fas fa-rss"
-  noblank: true
+
 # Uncomment and complete the url below to enable more contact options
 #
 # - type: mastodon
