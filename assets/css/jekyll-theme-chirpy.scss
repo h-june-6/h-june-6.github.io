@@ -1,0 +1,84 @@
+---
+---
+
+@use 'abstracts/variables' with (
+  $theme: '{{ site.theme_mode }}'
+);
+
+/* prettier-ignore */
+@use 'main
+{%- if jekyll.environment == 'production' -%}
+  .bundle
+{%- endif -%}
+';
+
+/* append your custom style below */
+
+/* ---------- 사이드바: 펼쳐지는 "카테고리" 메뉴 ---------- */
+#sidebar li.nav-group {
+  details > summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    color: var(--sidebar-muted-color, inherit);
+    user-select: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    &:hover {
+      background-color: var(--sidebar-hover-bg);
+      color: var(--sidebar-active-color);
+    }
+
+    i {
+      font-size: 95%;
+      opacity: 0.8;
+      margin-right: 1.5rem;
+    }
+
+    span {
+      font-size: 90%;
+      letter-spacing: 0.2px;
+    }
+
+    .nav-caret {
+      margin: 0 0 0 auto;
+      font-size: 70%;
+      transition: transform 0.2s ease;
+    }
+  }
+
+  details[open] > summary .nav-caret {
+    transform: rotate(180deg);
+  }
+
+  ul.sub-nav {
+    margin: 0.25rem 0 0.25rem;
+    padding: 0;
+    flex-direction: column;
+
+    li.nav-item {
+      padding-left: 0;
+      padding-right: 0;
+      margin-top: 0.1rem;
+
+      a.nav-link {
+        padding-top: 0.4rem;
+        padding-bottom: 0.4rem;
+        padding-left: 3.75rem;
+        font-weight: 500;
+
+        span {
+          font-size: 85%;
+        }
+      }
+    }
+  }
+}
