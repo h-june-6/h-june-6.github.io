@@ -23,13 +23,11 @@
     pointer-events: none;
     overflow: hidden;
   }
-  /* 글 목록·상단바·푸터는 버블 위에 그려지도록 */
-  body.has-bubbles #main-wrapper > .container { position: relative; z-index: 1; pointer-events: none; }
+  /* 글 목록·상단바·오른쪽 패널만 버블 위에, 푸터 글씨는 버블 뒤로 */
   body.has-bubbles #topbar-wrapper,
-  body.has-bubbles #post-list > *,
-  body.has-bubbles #panel-wrapper > *,
-  body.has-bubbles footer,
-  body.has-bubbles .pagination { pointer-events: auto; }
+  body.has-bubbles #post-list,
+  body.has-bubbles .pagination { position: relative; z-index: 1; }
+  body.has-bubbles #panel-wrapper { z-index: 1; }
 
   #photo-bubbles .bubble {
     position: absolute;
