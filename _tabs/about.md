@@ -7,8 +7,8 @@ order: 4
 ## 🎓 Education & Activities
 
 - 동국대학교 컴퓨터공학전공 재학 중 (23학번)
-- Grape 7기
-- 나이츠 프론티어 3기 (참가 중)
+- Grape 보안 동아리 7기
+- 나이츠 프론티어 3기 (HSPACE 주관 보안 프로그램) (참가 중)
 
 ## 🔍 Interests
 
