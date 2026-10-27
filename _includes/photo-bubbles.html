@@ -1,46 +1,47 @@
-<!-- 홈 상단: 활동 사진 버블 (사진 목록은 _data/bubbles.yml) -->
+<!-- 홈 배경: 활동 사진 버블 (사진 목록은 _data/bubbles.yml) -->
 {%- assign bubbles = site.data.bubbles -%}
 {%- if bubbles and bubbles.size > 0 -%}
 <section id="photo-bubbles" aria-label="활동 사진">
   {%- for b in bubbles -%}
     {%- capture src -%}{% include media-url.html src=b.src %}{%- endcapture -%}
-    <figure class="bubble" data-size="{{ b.diameter }}">
-      <img src="{{ src | strip }}" alt="{{ b.caption | default: '활동 사진' | escape }}" loading="lazy" onerror="this.closest('.bubble').remove()">
+    <figure class="bubble" data-diameter="{{ b.diameter }}">
+      <img src="{{ src | strip }}" alt="{{ b.caption | default: '활동 사진' | escape }}" onerror="this.closest('.bubble').remove()">
       {%- if b.caption -%}<figcaption>{{ b.caption }}</figcaption>{%- endif -%}
     </figure>
   {%- endfor -%}
 </section>
 
 <style>
+  /* 버블 층: 사이드바 오른쪽, 상단바 아래의 화면 전체를 씀 */
   #photo-bubbles {
-    position: relative;
-    height: 440px;
-    margin: 0 0 1.5rem;
-    background: transparent;
-    border: 0;
-    overflow: visible;
+    position: fixed;
+    top: 3rem;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
   }
+  /* 글 목록·상단바·푸터는 버블 위에 그려지도록 */
+  body.has-bubbles #main-wrapper > .container { position: relative; z-index: 1; pointer-events: none; }
+  body.has-bubbles #topbar-wrapper,
+  body.has-bubbles #post-list > *,
+  body.has-bubbles #panel-wrapper > *,
+  body.has-bubbles footer,
+  body.has-bubbles .pagination { pointer-events: auto; }
+
   #photo-bubbles .bubble {
     position: absolute;
     top: 0;
     left: 0;
     margin: 0;
     border-radius: 50%;
-    overflow: visible;
+    pointer-events: auto;
     cursor: pointer;
     will-change: transform;
-    transition: width 0.25s ease, height 0.25s ease;
   }
-  #photo-bubbles .bubble img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 50%;
-    display: block;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35), inset 0 0 0 2px rgba(255, 255, 255, 0.15);
-    border: 2px solid rgba(255, 255, 255, 0.25);
-    transition: transform 0.25s ease;
-  }
+  #photo-bubbles .bubble img,
   #photo-bubbles .preview-img,
   #photo-bubbles .shimmer {
     width: 100%;
@@ -51,126 +52,74 @@
     overflow: visible;
   }
   #photo-bubbles .shimmer::before { display: none !important; }
+  #photo-bubbles .bubble img {
+    display: block;
+    object-fit: cover;
+    border: 3px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+    transition: transform 0.25s ease;
+  }
   #photo-bubbles .bubble:hover { z-index: 5; }
-  #photo-bubbles .bubble:hover img { transform: scale(1.2); }
+  #photo-bubbles .bubble:hover img { transform: scale(1.12); }
   #photo-bubbles figcaption {
     position: absolute;
     left: 50%;
-    top: calc(100% + 0.75rem);
+    top: calc(100% + 0.6rem);
     transform: translateX(-50%);
     white-space: nowrap;
-    font-size: 0.8rem;
-    padding: 0.2rem 0.6rem;
+    font-size: 0.85rem;
+    padding: 0.25rem 0.7rem;
     border-radius: 0.5rem;
-    background: rgba(0, 0, 0, 0.75);
+    background: rgba(0, 0, 0, 0.8);
     color: #fff;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s ease;
   }
   #photo-bubbles .bubble:hover figcaption { opacity: 1; }
-  @media (max-width: 576px) {
-    #photo-bubbles { height: 320px; }
-  }
 </style>
 
 <script>
   (function () {
     var box = document.getElementById('photo-bubbles');
     if (!box) return;
-    var els = Array.prototype.slice.call(box.querySelectorAll('.bubble'));
+    /* fixed 위치가 테마의 transform 영향을 받지 않도록 body 바로 아래로 옮김 */
+    document.body.appendChild(box);
+    document.body.classList.add('has-bubbles');
+
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var W = 0, H = 0, items = [];
+    var items = [], W = 0, H = 0, placed = false, last = 0;
 
-    function measure() { W = box.clientWidth; H = box.clientHeight; }
-
-    function init() {
-      measure();
-      var small = W < 576;
-      /* 사진 개수에 맞춰 버블 크기를 정해서 영역의 약 55%를 채우기 */
-      var n = els.length;
-      var base = 2 * Math.sqrt((0.55 * W * H) / (n * Math.PI));
-      var maxS = Math.min(H * 0.9, W * 0.45);
-      base = Math.min(base, maxS);
-      items = els.map(function (el) {
-        var s = parseInt(el.getAttribute('data-size'), 10);
-        var fixed = s || 0, f = 0.85 + Math.random() * 0.3;
-        if (!s) s = base * f;
-        else if (small) s = s * 0.7;
-        s = Math.min(s, maxS);
-        el.style.width = el.style.height = s + 'px';
-        var r = s / 2;
-        var ang = Math.random() * Math.PI * 2;
-        var sp = 0.25 + Math.random() * 0.35;
-        return {
-          el: el, r: r, f: f, fixed: fixed,
-          x: r + Math.random() * Math.max(1, W - 2 * r),
-          y: r + Math.random() * Math.max(1, H - 2 * r),
-          vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp,
-          paused: false, t: Math.random() * 1000
-        };
-      });
-      items.forEach(function (it) {
-        it.el.addEventListener('mouseenter', function () { it.paused = true; });
-        it.el.addEventListener('mouseleave', function () { it.paused = false; });
-      });
-      draw();
+    function fitBox() {
+      var sb = document.getElementById('sidebar');
+      var tb = document.getElementById('topbar-wrapper');
+      var left = sb ? Math.max(0, sb.getBoundingClientRect().right) : 0;
+      var top = tb ? Math.max(0, tb.getBoundingClientRect().bottom) : 0;
+      box.style.left = left + 'px';
+      box.style.top = top + 'px';
+      W = box.clientWidth;
+      H = box.clientHeight;
     }
 
-    function draw() {
+    function sizes() {
+      var n = items.length;
+      /* 버블들이 화면의 약 35%를 차지하게 해서 돌아다닐 공간을 남김 */
+      var base = 2 * Math.sqrt((0.35 * W * H) / (n * Math.PI));
+      var maxS = Math.min(W, H) * 0.42;
       items.forEach(function (it) {
-        var bob = reduce ? 0 : Math.sin(it.t / 60) * 3;
-        it.el.style.transform = 'translate(' + (it.x - it.r) + 'px,' + (it.y - it.r + bob) + 'px)';
-      });
-    }
-
-    function step() {
-      for (var i = 0; i < items.length; i++) {
-        var a = items[i];
-        a.t++;
-        if (a.paused) continue;
-        var sp = Math.sqrt(a.vx * a.vx + a.vy * a.vy) || 0.01;
-        var k = sp < 0.2 ? 0.2 / sp : sp > 0.7 ? 0.7 / sp : 1;
-        a.vx *= k; a.vy *= k;
-        a.x += a.vx; a.y += a.vy;
-        if (a.x < a.r) { a.x = a.r; a.vx = Math.abs(a.vx); }
-        if (a.x > W - a.r) { a.x = W - a.r; a.vx = -Math.abs(a.vx); }
-        if (a.y < a.r) { a.y = a.r; a.vy = Math.abs(a.vy); }
-        if (a.y > H - a.r) { a.y = H - a.r; a.vy = -Math.abs(a.vy); }
-      }
-      /* 버블끼리 부딪히면 살짝 튕겨나가기 */
-      for (var i = 0; i < items.length; i++) {
-        for (var j = i + 1; j < items.length; j++) {
-          var p = items[i], q = items[j];
-          var dx = q.x - p.x, dy = q.y - p.y;
-          var d = Math.sqrt(dx * dx + dy * dy) || 0.01, min = p.r + q.r;
-          if (d < min) {
-            var nx = dx / d, ny = dy / d, push = (min - d) / 2;
-            if (!p.paused) { p.x -= nx * push; p.y -= ny * push; }
-            if (!q.paused) { q.x += nx * push; q.y += ny * push; }
-            var rel = (q.vx - p.vx) * nx + (q.vy - p.vy) * ny;
-            if (rel < 0) {
-              p.vx += rel * nx; p.vy += rel * ny;
-              q.vx -= rel * nx; q.vy -= rel * ny;
-            }
-          }
-        }
-      }
-      draw();
-      requestAnimationFrame(step);
-    }
-
-    var placed = false;
-    function relayout() {
-      measure();
-      if (W < 50 || H < 50) return;
-      var small = W < 576;
-      var base = Math.min(2 * Math.sqrt((0.55 * W * H) / (items.length * Math.PI)), H * 0.9, W * 0.45);
-      items.forEach(function (it) {
-        var s = it.fixed ? (small ? it.fixed * 0.7 : it.fixed) : base * it.f;
-        s = Math.min(s, H * 0.9, W * 0.45);
+        var s = it.fixed || base * it.f;
+        s = Math.max(60, Math.min(s, maxS));
         it.el.style.width = it.el.style.height = s + 'px';
         it.r = s / 2;
+        it.m = s * s;
+      });
+    }
+
+    function relayout() {
+      fitBox();
+      if (W < 80 || H < 80) return;
+      sizes();
+      items.forEach(function (it) {
         if (!placed) {
           it.x = it.r + Math.random() * Math.max(1, W - 2 * it.r);
           it.y = it.r + Math.random() * Math.max(1, H - 2 * it.r);
@@ -182,16 +131,70 @@
       draw();
     }
 
+    function draw() {
+      items.forEach(function (it) {
+        it.el.style.transform = 'translate(' + (it.x - it.r) + 'px,' + (it.y - it.r) + 'px)';
+      });
+    }
+
+    function step(now) {
+      var dt = last ? Math.min(0.05, (now - last) / 1000) : 0.016;
+      last = now;
+      if (placed) {
+        items.forEach(function (a) {
+          if (a.paused) return;
+          var sp = Math.sqrt(a.vx * a.vx + a.vy * a.vy) || 1;
+          var k = sp < 90 ? 90 / sp : sp > 220 ? 220 / sp : 1;
+          a.vx *= k; a.vy *= k;
+          a.x += a.vx * dt; a.y += a.vy * dt;
+          if (a.x < a.r) { a.x = a.r; a.vx = Math.abs(a.vx); }
+          if (a.x > W - a.r) { a.x = W - a.r; a.vx = -Math.abs(a.vx); }
+          if (a.y < a.r) { a.y = a.r; a.vy = Math.abs(a.vy); }
+          if (a.y > H - a.r) { a.y = H - a.r; a.vy = -Math.abs(a.vy); }
+        });
+        /* 버블끼리 부딪히면 당구공처럼 튕겨나감 (크기에 따라 무게 다름) */
+        for (var i = 0; i < items.length; i++) {
+          for (var j = i + 1; j < items.length; j++) {
+            var p = items[i], q = items[j];
+            var dx = q.x - p.x, dy = q.y - p.y;
+            var d = Math.sqrt(dx * dx + dy * dy) || 0.01, min = p.r + q.r;
+            if (d >= min) continue;
+            var nx = dx / d, ny = dy / d, overlap = min - d;
+            var mp = p.paused ? 1e9 : p.m, mq = q.paused ? 1e9 : q.m;
+            p.x -= nx * overlap * mq / (mp + mq); p.y -= ny * overlap * mq / (mp + mq);
+            q.x += nx * overlap * mp / (mp + mq); q.y += ny * overlap * mp / (mp + mq);
+            var rel = (q.vx - p.vx) * nx + (q.vy - p.vy) * ny;
+            if (rel < 0) {
+              var imp = -2 * rel / (1 / mp + 1 / mq);
+              if (!p.paused) { p.vx -= imp / mp * nx; p.vy -= imp / mp * ny; }
+              if (!q.paused) { q.vx += imp / mq * nx; q.vy += imp / mq * ny; }
+            }
+          }
+        }
+        draw();
+      }
+      requestAnimationFrame(step);
+    }
+
     function start() {
-      els = Array.prototype.slice.call(box.querySelectorAll('.bubble'));
-      if (!els.length) { box.remove(); return; }
-      init();
+      var els = Array.prototype.slice.call(box.querySelectorAll('.bubble'));
+      if (!els.length) { box.remove(); document.body.classList.remove('has-bubbles'); return; }
+      items = els.map(function (el) {
+        var ang = Math.random() * Math.PI * 2, sp = 110 + Math.random() * 90;
+        var it = {
+          el: el, fixed: parseInt(el.getAttribute('data-diameter'), 10) || 0,
+          f: 0.8 + Math.random() * 0.4, r: 1, m: 1, x: 0, y: 0,
+          vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, paused: false
+        };
+        el.addEventListener('mouseenter', function () { it.paused = true; });
+        el.addEventListener('mouseleave', function () { it.paused = false; });
+        return it;
+      });
       relayout();
-      if (!reduce) requestAnimationFrame(step);
-      /* 페이지 레이아웃이 늦게 잡히거나 창 크기가 바뀌면 다시 계산 */
       if (window.ResizeObserver) new ResizeObserver(relayout).observe(box);
       window.addEventListener('resize', relayout);
       window.addEventListener('load', relayout);
+      if (!reduce) requestAnimationFrame(step);
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
