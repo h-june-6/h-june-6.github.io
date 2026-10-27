@@ -14,7 +14,7 @@
 <style>
   #photo-bubbles {
     position: relative;
-    height: 340px;
+    height: 440px;
     margin: 0 0 1.5rem;
     border-radius: 1rem;
     overflow: hidden;
@@ -46,7 +46,7 @@
     transition: transform 0.25s ease;
   }
   #photo-bubbles .bubble:hover { z-index: 5; }
-  #photo-bubbles .bubble:hover img { transform: scale(1.35); }
+  #photo-bubbles .bubble:hover img { transform: scale(1.2); }
   #photo-bubbles figcaption {
     position: absolute;
     left: 50%;
@@ -64,7 +64,7 @@
   }
   #photo-bubbles .bubble:hover figcaption { opacity: 1; }
   @media (max-width: 576px) {
-    #photo-bubbles { height: 260px; }
+    #photo-bubbles { height: 320px; }
   }
 </style>
 
@@ -81,16 +81,23 @@
     function init() {
       measure();
       var small = W < 576;
+      // 사진 개수에 맞춰 버블 크기를 정해서 영역의 약 55%를 채우기
+      var n = els.length;
+      var base = 2 * Math.sqrt((0.55 * W * H) / (n * Math.PI));
+      var maxS = Math.min(H * 0.9, W * 0.45);
+      base = Math.min(base, maxS);
       items = els.map(function (el) {
         var s = parseInt(el.getAttribute('data-size'), 10);
-        if (!s) s = small ? 60 + Math.random() * 30 : 85 + Math.random() * 55;
+        var fixed = s || 0, f = 0.85 + Math.random() * 0.3;
+        if (!s) s = base * f;
         else if (small) s = s * 0.7;
+        s = Math.min(s, maxS);
         el.style.width = el.style.height = s + 'px';
         var r = s / 2;
         var ang = Math.random() * Math.PI * 2;
         var sp = 0.25 + Math.random() * 0.35;
         return {
-          el: el, r: r,
+          el: el, r: r, f: f, fixed: fixed,
           x: r + Math.random() * Math.max(1, W - 2 * r),
           y: r + Math.random() * Math.max(1, H - 2 * r),
           vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp,
@@ -154,7 +161,13 @@
       if (!reduce) requestAnimationFrame(step);
       window.addEventListener('resize', function () {
         measure();
+        var small = W < 576;
+        var base = Math.min(2 * Math.sqrt((0.55 * W * H) / (items.length * Math.PI)), H * 0.9, W * 0.45);
         items.forEach(function (it) {
+          var s = it.fixed ? (small ? it.fixed * 0.7 : it.fixed) : base * it.f;
+          s = Math.min(s, H * 0.9, W * 0.45);
+          it.el.style.width = it.el.style.height = s + 'px';
+          it.r = s / 2;
           it.x = Math.min(Math.max(it.x, it.r), Math.max(it.r, W - it.r));
           it.y = Math.min(Math.max(it.y, it.r), Math.max(it.r, H - it.r));
         });
