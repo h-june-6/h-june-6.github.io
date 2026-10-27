@@ -41,7 +41,6 @@
     cursor: pointer;
     will-change: transform;
   }
-  #photo-bubbles .bubble img,
   #photo-bubbles .preview-img,
   #photo-bubbles .shimmer {
     width: 100%;
@@ -49,18 +48,24 @@
     aspect-ratio: auto;
     background: none !important;
     border-radius: 50%;
-    overflow: visible;
+    overflow: hidden;
+    -webkit-clip-path: circle(50% at 50% 50%);
+    clip-path: circle(50% at 50% 50%);
   }
   #photo-bubbles .shimmer::before { display: none !important; }
+  #photo-bubbles .bubble { box-shadow: 0 0 0 3px #fff, 0 10px 28px rgba(0, 0, 0, 0.22); }
   #photo-bubbles .bubble img {
+    width: 100%;
+    height: 100%;
     display: block;
     object-fit: cover;
-    border: 3px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
-    transition: transform 0.25s ease;
+    border-radius: 50%;
+    -webkit-clip-path: circle(50% at 50% 50%);
+    clip-path: circle(50% at 50% 50%);
   }
   #photo-bubbles .bubble:hover { z-index: 5; }
-  #photo-bubbles .bubble:hover img { transform: scale(1.12); }
+  #photo-bubbles .bubble { transition: box-shadow 0.2s ease; }
+  #photo-bubbles .bubble:hover { box-shadow: 0 0 0 4px #3fb950, 0 14px 34px rgba(0, 0, 0, 0.3); }
   #photo-bubbles figcaption {
     position: absolute;
     left: 50%;
