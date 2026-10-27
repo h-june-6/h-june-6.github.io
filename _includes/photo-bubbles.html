@@ -4,7 +4,7 @@
 <section id="photo-bubbles" aria-label="활동 사진">
   {%- for b in bubbles -%}
     {%- capture src -%}{% include media-url.html src=b.src %}{%- endcapture -%}
-    <figure class="bubble" data-size="{{ b.size | default: '' }}">
+    <figure class="bubble" data-size="{{ b.diameter }}">
       <img src="{{ src | strip }}" alt="{{ b.caption | default: '활동 사진' | escape }}" loading="lazy" onerror="this.closest('.bubble').remove()">
       {%- if b.caption -%}<figcaption>{{ b.caption }}</figcaption>{%- endif -%}
     </figure>
