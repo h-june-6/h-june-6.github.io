@@ -46,7 +46,8 @@ layout: default
   {% endfor %}
 {% endif %}
 
-{% if paginator.page == 1 %}
+{% assign current_page = paginator.page | default: 1 %}
+{% if current_page == 1 %}
   {% include photo-bubbles.html %}
 {% endif %}
 
