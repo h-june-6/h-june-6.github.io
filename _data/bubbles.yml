@@ -6,13 +6,13 @@
 # 경로에 없는 사진은 자동으로 숨겨져요.
 
 - src: /assets/img/bubbles/1.jpg
-  caption: 사회보장 AI혁신 산학협력 우수상
+  caption: 사회보장 AI혁신 산학협력 프로젝트
 
 - src: /assets/img/bubbles/2.jpg
-  caption: OT&AI Open Platform Challenge
+  caption: IoT&AI Open Platform Challenge
 
 - src: /assets/img/bubbles/3.jpg
-  caption: Grape 7기
+  caption: Grape 7기 (수정 예정)
 
 - src: /assets/img/bubbles/4.jpg
-  caption: 나이츠 프론티어 3기
+  caption: 나이츠 프론티어 3기 (수정 예정)
