@@ -14,6 +14,19 @@
 
 /* append your custom style below */
 
+/* ---------- 사이드바 프로필 사진: 자르지 않고 전체 표시 ---------- */
+#sidebar #avatar {
+  border-radius: 0.75rem !important; /* 동그라미 대신 둥근 사각형 */
+  width: 10rem;
+  height: auto;
+
+  img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+}
+
 /* ---------- 사이드바: 펼쳐지는 "카테고리" 메뉴 ---------- */
 #sidebar li.nav-group {
   details > summary {
