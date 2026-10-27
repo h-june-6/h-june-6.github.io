@@ -81,7 +81,7 @@
     function init() {
       measure();
       var small = W < 576;
-      // 사진 개수에 맞춰 버블 크기를 정해서 영역의 약 55%를 채우기
+      /* 사진 개수에 맞춰 버블 크기를 정해서 영역의 약 55%를 채우기 */
       var n = els.length;
       var base = 2 * Math.sqrt((0.55 * W * H) / (n * Math.PI));
       var maxS = Math.min(H * 0.9, W * 0.45);
@@ -132,7 +132,7 @@
         if (a.y < a.r) { a.y = a.r; a.vy = Math.abs(a.vy); }
         if (a.y > H - a.r) { a.y = H - a.r; a.vy = -Math.abs(a.vy); }
       }
-      // 버블끼리 부딪히면 살짝 튕겨나가기
+      /* 버블끼리 부딪히면 살짝 튕겨나가기 */
       for (var i = 0; i < items.length; i++) {
         for (var j = i + 1; j < items.length; j++) {
           var p = items[i], q = items[j];
