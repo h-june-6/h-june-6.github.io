@@ -1,0 +1,18 @@
+# 홈 상단 활동 사진 버블 목록
+# - src: 사진 경로 (assets/img/bubbles/ 폴더에 사진을 넣고 경로를 적기)
+# - caption: 마우스를 올리면 사진 아래에 뜨는 설명 (선택)
+# - size: 버블 크기(px, 선택). 비워두면 85~140 사이에서 랜덤
+# 사진을 추가/삭제하려면 아래 덩어리(- src ~ caption)를 늘리거나 지우면 돼요.
+# 경로에 없는 사진은 자동으로 숨겨져요.
+
+- src: /assets/img/bubbles/1.jpg
+  caption: 사회보장 AI혁신 산학협력 우수상
+
+- src: /assets/img/bubbles/2.jpg
+  caption: OT&AI Open Platform Challenge
+
+- src: /assets/img/bubbles/3.jpg
+  caption: Grape 7기
+
+- src: /assets/img/bubbles/4.jpg
+  caption: 나이츠 프론티어 3기
