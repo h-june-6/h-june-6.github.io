@@ -150,25 +150,38 @@
       requestAnimationFrame(step);
     }
 
+    var placed = false;
+    function relayout() {
+      measure();
+      if (W < 50 || H < 50) return;
+      var small = W < 576;
+      var base = Math.min(2 * Math.sqrt((0.55 * W * H) / (items.length * Math.PI)), H * 0.9, W * 0.45);
+      items.forEach(function (it) {
+        var s = it.fixed ? (small ? it.fixed * 0.7 : it.fixed) : base * it.f;
+        s = Math.min(s, H * 0.9, W * 0.45);
+        it.el.style.width = it.el.style.height = s + 'px';
+        it.r = s / 2;
+        if (!placed) {
+          it.x = it.r + Math.random() * Math.max(1, W - 2 * it.r);
+          it.y = it.r + Math.random() * Math.max(1, H - 2 * it.r);
+        }
+        it.x = Math.min(Math.max(it.x, it.r), Math.max(it.r, W - it.r));
+        it.y = Math.min(Math.max(it.y, it.r), Math.max(it.r, H - it.r));
+      });
+      placed = true;
+      draw();
+    }
+
     function start() {
       els = Array.prototype.slice.call(box.querySelectorAll('.bubble'));
       if (!els.length) { box.remove(); return; }
       init();
+      relayout();
       if (!reduce) requestAnimationFrame(step);
-      window.addEventListener('resize', function () {
-        measure();
-        var small = W < 576;
-        var base = Math.min(2 * Math.sqrt((0.55 * W * H) / (items.length * Math.PI)), H * 0.9, W * 0.45);
-        items.forEach(function (it) {
-          var s = it.fixed ? (small ? it.fixed * 0.7 : it.fixed) : base * it.f;
-          s = Math.min(s, H * 0.9, W * 0.45);
-          it.el.style.width = it.el.style.height = s + 'px';
-          it.r = s / 2;
-          it.x = Math.min(Math.max(it.x, it.r), Math.max(it.r, W - it.r));
-          it.y = Math.min(Math.max(it.y, it.r), Math.max(it.r, H - it.r));
-        });
-        draw();
-      });
+      /* 페이지 레이아웃이 늦게 잡히거나 창 크기가 바뀌면 다시 계산 */
+      if (window.ResizeObserver) new ResizeObserver(relayout).observe(box);
+      window.addEventListener('resize', relayout);
+      window.addEventListener('load', relayout);
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
