@@ -69,29 +69,15 @@
   #photo-bubbles .bubble::before {
     content: '';
     position: absolute;
-    inset: -5px;
+    inset: -7px;
     border-radius: 50%;
-    background: conic-gradient(from 210deg, #ffffff, #d7dde4, #9aa4b1, #f4f6f8, #c3cbd5, #ffffff);
+    background: conic-gradient(from 210deg, #ffffff, #d7dde4, #8f9aa8, #eef1f4, #b5bfcb, #ffffff);
     z-index: 0;
     pointer-events: none;
   }
-  /* 링(뒤) → 사진 → 광택(앞) 순서로 겹치기 */
+  /* 링(뒤) → 사진(앞) 순서로 겹치기 */
   #photo-bubbles .bubble > .preview-img,
   #photo-bubbles .bubble > img { position: relative; z-index: 1; }
-  /* 유리구슬처럼 위쪽 광택 + 아래쪽 음영 */
-  #photo-bubbles .bubble::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background:
-      radial-gradient(circle at 32% 22%, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0) 38%),
-      radial-gradient(circle at 70% 90%, rgba(10, 15, 30, 0.32), rgba(10, 15, 30, 0) 55%),
-      linear-gradient(160deg, rgba(255, 255, 255, 0.06), rgba(10, 15, 30, 0.14));
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
-    z-index: 2;
-    pointer-events: none;
-  }
   #photo-bubbles .bubble:hover { z-index: 5; }
   #photo-bubbles .bubble:hover {
     box-shadow: 0 2px 6px rgba(15, 23, 42, 0.1), 0 28px 54px -14px rgba(15, 23, 42, 0.45);
