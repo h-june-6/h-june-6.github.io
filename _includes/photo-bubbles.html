@@ -81,6 +81,12 @@
   /* 링(뒤) → 사진(앞) 순서로 겹치기 */
   #photo-bubbles .bubble > .preview-img,
   #photo-bubbles .bubble > img { position: relative; z-index: 1; }
+  /* 사진 가장자리를 살짝 흐리게 */
+  #photo-bubbles .bubble img {
+    -webkit-mask-image: radial-gradient(circle closest-side, #000 86%, rgba(0, 0, 0, 0) 100%);
+    mask-image: radial-gradient(circle closest-side, #000 86%, rgba(0, 0, 0, 0) 100%);
+  }
+  #photo-bubbles .bubble::before { filter: blur(0.8px); }
   #photo-bubbles .bubble:hover { z-index: 5; }
   #photo-bubbles .bubble:hover {
     box-shadow: 0 2px 6px rgba(15, 23, 42, 0.1), 0 28px 54px -14px rgba(15, 23, 42, 0.45);
