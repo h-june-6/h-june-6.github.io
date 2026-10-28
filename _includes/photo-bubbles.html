@@ -38,7 +38,10 @@
     pointer-events: auto;
     cursor: pointer;
     will-change: transform;
+    opacity: 0;
   }
+  /* 사진이 다 불러와진 뒤에 부드럽게 나타나기 */
+  #photo-bubbles .bubble.ready { opacity: 1; transition: opacity 0.5s ease, box-shadow 0.3s ease; }
   #photo-bubbles .preview-img,
   #photo-bubbles .shimmer {
     width: 100%;
@@ -211,6 +214,10 @@
           f: 0.8 + Math.random() * 0.4, r: 1, m: 1, x: 0, y: 0,
           vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, paused: false
         };
+        var img = el.querySelector('img');
+        var show = function () { el.classList.add('ready'); };
+        if (img && img.complete && img.naturalWidth) show();
+        else if (img) img.addEventListener('load', show);
         el.addEventListener('mouseenter', function () { it.paused = true; });
         el.addEventListener('mouseleave', function () { it.paused = false; });
         return it;
