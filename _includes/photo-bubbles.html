@@ -5,7 +5,7 @@
   {%- for b in bubbles -%}
     {%- capture src -%}{% include media-url.html src=b.src %}{%- endcapture -%}
     <figure class="bubble" data-diameter="{{ b.diameter }}">
-      <img src="{{ src | strip }}" alt="{{ b.caption | default: '활동 사진' | escape }}" onerror="this.closest('.bubble').remove()">
+      <img src="{{ src | strip }}" alt="{{ b.caption | default: '활동 사진' | escape }}" loading="eager" onerror="this.closest('.bubble').remove()">
       {%- if b.caption -%}<figcaption>{{ b.caption }}</figcaption>{%- endif -%}
     </figure>
   {%- endfor -%}
@@ -172,6 +172,10 @@
 
     function draw() {
       items.forEach(function (it) {
+        if (!it.shown && it.img && it.img.complete && it.img.naturalWidth) {
+          it.shown = true;
+          it.el.classList.add('ready');
+        }
         it.el.style.transform = 'translate(' + (it.x - it.r) + 'px,' + (it.y - it.r) + 'px)';
       });
     }
@@ -223,12 +227,9 @@
         var it = {
           el: el, fixed: parseInt(el.getAttribute('data-diameter'), 10) || 0,
           f: 0.8 + Math.random() * 0.4, r: 1, m: 1, x: 0, y: 0,
-          vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, paused: false
+          vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, paused: false,
+          img: el.querySelector('img'), shown: false
         };
-        var img = el.querySelector('img');
-        var show = function () { el.classList.add('ready'); };
-        if (img && img.complete && img.naturalWidth) show();
-        else if (img) img.addEventListener('load', show);
         el.addEventListener('mouseenter', function () { it.paused = true; });
         el.addEventListener('mouseleave', function () { it.paused = false; });
         return it;
@@ -238,6 +239,9 @@
       window.addEventListener('resize', relayout);
       window.addEventListener('load', relayout);
       if (!reduce) requestAnimationFrame(step);
+      /* 사진 로딩 확인이 늦어져도 3초 뒤엔 무조건 보이게 */
+      setTimeout(function () { items.forEach(function (it) { it.shown = true; it.el.classList.add('ready'); }); }, 3000);
+      setInterval(draw, 500);
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
