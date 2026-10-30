@@ -1,10 +1,10 @@
-<!-- 처음 방문했을 때(직접 고른 적 없을 때)는 라이트 모드로 시작 -->
+<!-- 처음 방문했을 때(직접 고른 적 없을 때)는 다크 모드로 시작 -->
 <script>
   (function () {
     try {
       if (localStorage.getItem('theme') === null) {
-        localStorage.setItem('theme', 'light');
-        document.documentElement.setAttribute('data-bs-theme', 'light');
+        localStorage.setItem('theme', 'dark');
+        document.documentElement.setAttribute('data-bs-theme', 'dark');
         document.documentElement.setAttribute('data-theme-persisted', '');
       }
     } catch (e) {}
