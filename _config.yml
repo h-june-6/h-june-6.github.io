@@ -87,7 +87,7 @@ pageviews:
 #     light — Use the light color scheme
 #     dark — Use the dark color scheme
 #
-theme_mode: light # [light | dark]
+theme_mode: # [light | dark] 비워두면 사이드바 하단에 라이트/다크 전환 버튼이 생김
 
 # The CDN endpoint for media resources.
 # Notice that once it is assigned, the CDN url
