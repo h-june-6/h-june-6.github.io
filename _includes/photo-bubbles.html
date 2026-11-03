@@ -12,7 +12,7 @@
 </section>
 <div id="bubble-hero">
   <button type="button" id="bubble-scroll" aria-label="글 목록으로 내려가기">
-    <svg viewBox="0 0 80 52" width="80" height="52" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <svg viewBox="0 0 168 68" width="168" height="68" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">
       <defs>
         <linearGradient id="chev-body" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stop-color="#e8f3ff" stop-opacity="0.95"/>
@@ -27,9 +27,9 @@
           <stop offset="1" stop-color="#fff" stop-opacity="0"/>
         </linearGradient>
       </defs>
-      <g class="chev c1"><path d="M6 6 L40 20 L74 6" stroke="url(#chev-body)" stroke-width="4.2"/><path d="M9 5.4 L40 18.2 L71 5.4" stroke="url(#chev-shine)" stroke-width="1.2"/></g>
-      <g class="chev c2"><path d="M6 18 L40 32 L74 18" stroke="url(#chev-body)" stroke-width="4.2"/><path d="M9 17.4 L40 30.2 L71 17.4" stroke="url(#chev-shine)" stroke-width="1.2"/></g>
-      <g class="chev c3"><path d="M6 30 L40 44 L74 30" stroke="url(#chev-body)" stroke-width="4.2"/><path d="M9 29.4 L40 42.2 L71 29.4" stroke="url(#chev-shine)" stroke-width="1.2"/></g>
+      <g class="chev c1"><path class="under" d="M8 8 L84 26 L160 8" stroke-width="9"/><path d="M8 8 L84 26 L160 8" stroke="url(#chev-body)" stroke-width="5"/><path d="M14 7.2 L84 23.6 L154 7.2" stroke="url(#chev-shine)" stroke-width="1.4"/></g>
+      <g class="chev c2"><path class="under" d="M8 24 L84 42 L160 24" stroke-width="9"/><path d="M8 24 L84 42 L160 24" stroke="url(#chev-body)" stroke-width="5"/><path d="M14 23.2 L84 39.6 L154 23.2" stroke="url(#chev-shine)" stroke-width="1.4"/></g>
+      <g class="chev c3"><path class="under" d="M8 40 L84 58 L160 40" stroke-width="9"/><path d="M8 40 L84 58 L160 40" stroke="url(#chev-body)" stroke-width="5"/><path d="M14 39.2 L84 55.6 L154 39.2" stroke="url(#chev-shine)" stroke-width="1.4"/></g>
     </svg>
     <span class="scroll-label">Scroll</span>
   </button>
@@ -82,6 +82,8 @@
     overflow: visible;
     filter: drop-shadow(0 2px 3px rgba(30, 60, 110, 0.35)) drop-shadow(0 0 6px rgba(140, 190, 245, 0.35));
   }
+  #bubble-scroll .under { stroke: rgba(8, 16, 32, 0.55); }
+  [data-bs-theme='light'] #bubble-scroll .under { stroke: rgba(255, 255, 255, 0.75); }
   #bubble-scroll .chev { animation: chev-wave 1.8s ease-in-out infinite; opacity: 0.25; }
   #bubble-scroll .c2 { animation-delay: 0.2s; }
   #bubble-scroll .c3 { animation-delay: 0.4s; }
@@ -90,7 +92,9 @@
     45% { opacity: 1; transform: translateY(3px); }
   }
   #bubble-scroll .scroll-label {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
     letter-spacing: 0.18em;
     color: var(--text-muted-color, #8a94a6);
   }
@@ -272,7 +276,25 @@
       });
     }
 
+    /* 화살표 주변은 버블이 들어오지 않게 튕겨내기 */
+    function pushOut(a, o) {
+      var cx = Math.max(o.l, Math.min(a.x, o.r)), cy = Math.max(o.t, Math.min(a.y, o.b));
+      var dx = a.x - cx, dy = a.y - cy, d2 = dx * dx + dy * dy;
+      if (d2 >= a.r * a.r) return;
+      var nx, ny, push;
+      if (d2 < 1e-6) { nx = 0; ny = -1; push = a.y - o.t + a.r; }
+      else { var d = Math.sqrt(d2); nx = dx / d; ny = dy / d; push = a.r - d; }
+      a.x += nx * push; a.y += ny * push;
+      var vn = a.vx * nx + a.vy * ny;
+      if (vn < 0) { a.vx -= 2 * vn * nx; a.vy -= 2 * vn * ny; }
+    }
+
     function step(now) {
+      var arrowBox = null;
+      if (arrow && prog < 0.4) {
+        var ar = arrow.getBoundingClientRect(), br = box.getBoundingClientRect();
+        if (ar.width) arrowBox = { l: ar.left - br.left - 24, t: ar.top - br.top - 24, r: ar.right - br.left + 24, b: ar.bottom - br.top + 24 };
+      }
       var dt = last ? Math.min(0.05, (now - last) / 1000) : 0.016;
       last = now;
       if (placed && prog < 1) {
@@ -286,6 +308,7 @@
           if (a.x > W - a.r) { a.x = W - a.r; a.vx = -Math.abs(a.vx); }
           if (a.y < a.r) { a.y = a.r; a.vy = Math.abs(a.vy); }
           if (a.y > H - a.r) { a.y = H - a.r; a.vy = -Math.abs(a.vy); }
+          if (arrowBox) pushOut(a, arrowBox);
         });
         /* 버블끼리 부딪히면 당구공처럼 튕겨나감 (크기에 따라 무게 다름) */
         for (var i = 0; i < items.length; i++) {
