@@ -32,7 +32,7 @@
   body.has-bubbles #topbar-wrapper,
   body.has-bubbles #post-list,
   body.has-bubbles .pagination { position: relative; z-index: 1; }
-  body.has-bubbles #panel-wrapper { z-index: 1; }
+  body.has-bubbles #panel-wrapper { z-index: 1; transition: opacity 0.15s linear; }
 
   /* 처음 화면: 버블만 보이는 첫 화면, 글 목록은 그 아래에서 시작 */
   #bubble-hero {
@@ -177,6 +177,7 @@
     var hero = document.getElementById('bubble-hero');
     var arrow = document.getElementById('bubble-scroll');
     var prog = 0;
+    var panel = document.getElementById('panel-wrapper');
 
     function onScroll() {
       var h = hero ? hero.offsetHeight : window.innerHeight;
@@ -184,6 +185,10 @@
       box.style.opacity = String(1 - prog);
       box.style.visibility = prog >= 1 ? 'hidden' : 'visible';
       box.classList.toggle('tidy', prog > 0.5);
+      if (panel) {
+        panel.style.opacity = String(prog);
+        panel.style.pointerEvents = prog > 0.5 ? 'auto' : 'none';
+      }
       if (arrow) {
         arrow.style.opacity = String(Math.max(0, 1 - prog * 2.5));
         arrow.style.pointerEvents = prog > 0.3 ? 'none' : 'auto';
