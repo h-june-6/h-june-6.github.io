@@ -6,6 +6,7 @@ tags: [fastapi, postgresql, llm, backend, qa]
 pin: true
 image:
   path: /assets/img/posts/policy-ai-service/dashboard.jpg
+  alt: 법정책동향분석 서비스 개정사항 화면
 ---
 
 ### 프로젝트 개요
@@ -19,7 +20,6 @@ image:
 - **기술 스택**: Python, FastAPI, PostgreSQL, HTML/JS, OpenAI API, 법제처 OpenAPI
 - **GitHub**: <https://github.com/h-june-6/policy_ai_project>
 
-![법정책동향분석 서비스 개정사항 화면](/assets/img/posts/policy-ai-service/dashboard.jpg)
 
 ### 해결하려던 문제
 
