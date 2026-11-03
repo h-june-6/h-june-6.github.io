@@ -10,6 +10,11 @@
     </figure>
   {%- endfor -%}
 </section>
+<div id="bubble-hero">
+  <button type="button" id="bubble-scroll" aria-label="글 목록으로 내려가기">
+    <i class="fas fa-chevron-down" aria-hidden="true"></i>
+  </button>
+</div>
 
 <style>
   /* 버블 층: 사이드바 오른쪽, 상단바 아래의 화면 전체를 씀 */
@@ -29,14 +34,45 @@
   body.has-bubbles .pagination { position: relative; z-index: 1; }
   body.has-bubbles #panel-wrapper { z-index: 1; }
 
-  /* 젖빛 유리 카드: 뒤로 지나가는 버블이 흐릿하게 비침 */
-  body.has-bubbles #post-list .post-preview,
-  body.has-bubbles #panel-wrapper .access > section {
-    background: color-mix(in srgb, var(--card-bg) 70%, transparent);
-    -webkit-backdrop-filter: blur(18px) saturate(1.25);
-    backdrop-filter: blur(18px) saturate(1.25);
+  /* 처음 화면: 버블만 보이는 첫 화면, 글 목록은 그 아래에서 시작 */
+  #bubble-hero {
+    position: relative;
+    z-index: 2;
+    height: calc(100vh - 3rem);
+    height: calc(100svh - 3rem);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 2.5rem;
+    pointer-events: none;
   }
-  body.has-bubbles #panel-wrapper .access > section { border-radius: 0.75rem; padding: 0.5rem 0.75rem; }
+  /* 버블 느낌의 아래 화살표 */
+  #bubble-scroll {
+    pointer-events: auto;
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    border: 0;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 1.35rem;
+    background:
+      radial-gradient(ellipse 30% 18% at 33% 22%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 70%),
+      radial-gradient(circle at 50% 60%, rgba(120, 170, 235, 0.55), rgba(70, 110, 180, 0.75));
+    box-shadow:
+      inset 0 -10px 18px rgba(30, 60, 120, 0.35),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.55),
+      0 14px 28px -12px rgba(30, 60, 110, 0.5);
+    animation: bubble-bob 2.2s ease-in-out infinite;
+    transition: opacity 0.2s ease;
+  }
+  #bubble-scroll:hover { filter: brightness(1.08); }
+  #bubble-scroll i { text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25); }
+  @keyframes bubble-bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(10px); }
+  }
+  @media (prefers-reduced-motion: reduce) { #bubble-scroll { animation: none; } }
 
   #photo-bubbles .bubble {
     position: absolute;
@@ -101,6 +137,7 @@
       inset 0 10px 22px rgba(255, 255, 255, 0.15),
       0 0 0 1px rgba(255, 255, 255, 0.6);
   }
+  #photo-bubbles.tidy .bubble { pointer-events: none; }
   #photo-bubbles .bubble:hover { z-index: 5; }
   /* 마우스를 올리면 물방울이 맑아지면서 원래 색으로 */
   #photo-bubbles .bubble:hover img {
@@ -136,9 +173,23 @@
     document.body.classList.add('has-bubbles');
 
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var items = [], W = 0, H = 0, BX = 0, BY = 0, placed = false, last = 0;
-    var OBSTACLE_SEL = '#post-list .post-preview, .pagination, #panel-wrapper .access > section';
-    var GAP = 14;
+    var items = [], W = 0, H = 0, placed = false, last = 0;
+    var hero = document.getElementById('bubble-hero');
+    var arrow = document.getElementById('bubble-scroll');
+    var prog = 0;
+
+    function onScroll() {
+      var h = hero ? hero.offsetHeight : window.innerHeight;
+      prog = Math.max(0, Math.min(1, window.scrollY / (h * 0.7)));
+      box.style.opacity = String(1 - prog);
+      box.style.visibility = prog >= 1 ? 'hidden' : 'visible';
+      box.classList.toggle('tidy', prog > 0.5);
+      if (arrow) {
+        arrow.style.opacity = String(Math.max(0, 1 - prog * 2.5));
+        arrow.style.pointerEvents = prog > 0.3 ? 'none' : 'auto';
+      }
+      draw();
+    }
 
     function fitBox() {
       var sb = document.getElementById('sidebar');
@@ -147,79 +198,32 @@
       var top = tb ? Math.max(0, tb.getBoundingClientRect().bottom) : 0;
       box.style.left = left + 'px';
       box.style.top = top + 'px';
-      var br = box.getBoundingClientRect();
-      BX = br.left; BY = br.top; W = br.width; H = br.height;
-    }
-
-    /* 글 카드·오른쪽 패널을 버블이 피해 다닐 벽으로 */
-    function obstacles() {
-      var out = [];
-      var els = document.querySelectorAll(OBSTACLE_SEL);
-      for (var i = 0; i < els.length; i++) {
-        var r = els[i].getBoundingClientRect();
-        if (r.width < 4 || r.height < 4) continue;
-        var o = { l: r.left - BX - GAP, t: r.top - BY - GAP, r: r.right - BX + GAP, b: r.bottom - BY + GAP };
-        if (o.b < 0 || o.t > H || o.r < 0 || o.l > W) continue;
-        out.push(o);
-      }
-      return out;
-    }
-
-    function freeArea(obs) {
-      var covered = 0;
-      obs.forEach(function (o) {
-        var w = Math.max(0, Math.min(W, o.r) - Math.max(0, o.l));
-        var h = Math.max(0, Math.min(H, o.b) - Math.max(0, o.t));
-        covered += w * h;
-      });
-      return Math.max(W * H * 0.2, W * H - covered);
+      W = box.clientWidth;
+      H = box.clientHeight;
     }
 
     function sizes() {
       var n = items.length;
-      /* 빈 공간의 약 40%를 버블이 차지하도록 */
-      var base = 2 * Math.sqrt((0.4 * freeArea(obstacles())) / (n * Math.PI));
+      /* 버블들이 화면의 약 35%를 차지하게 해서 돌아다닐 공간을 남김 */
+      var base = 2 * Math.sqrt((0.35 * W * H) / (n * Math.PI));
       var maxS = Math.min(W, H) * 0.42;
       items.forEach(function (it) {
         var s = it.fixed || base * it.f;
-        it.s0 = Math.max(70, Math.min(s, maxS));
-        setSize(it);
-      });
-    }
-
-    function setSize(it) {
-      var s = it.s0 * it.k;
-      if (Math.abs(s - (it.shownSize || 0)) > 0.5) {
+        s = Math.max(60, Math.min(s, maxS));
         it.el.style.width = it.el.style.height = s + 'px';
-        it.shownSize = s;
-      }
-      it.r = s / 2;
-      it.m = s * s;
-    }
-
-    function hitsAny(it, obs) {
-      for (var i = 0; i < obs.length; i++) {
-        var o = obs[i];
-        var cx = Math.max(o.l, Math.min(it.x, o.r)), cy = Math.max(o.t, Math.min(it.y, o.b));
-        var dx = it.x - cx, dy = it.y - cy;
-        if (dx * dx + dy * dy < it.r * it.r - 1) return true;
-      }
-      return false;
+        it.r = s / 2;
+        it.m = s * s;
+      });
     }
 
     function relayout() {
       fitBox();
       if (W < 80 || H < 80) return;
       sizes();
-      var obs = obstacles();
       items.forEach(function (it) {
         if (!placed) {
-          /* 처음엔 벽과 안 겹치는 자리를 골라서 놓기 */
-          for (var t = 0; t < 60; t++) {
-            it.x = it.r + Math.random() * Math.max(1, W - 2 * it.r);
-            it.y = it.r + Math.random() * Math.max(1, H - 2 * it.r);
-            if (!hitsAny(it, obs)) break;
-          }
+          it.x = it.r + Math.random() * Math.max(1, W - 2 * it.r);
+          it.y = it.r + Math.random() * Math.max(1, H - 2 * it.r);
         }
         it.x = Math.min(Math.max(it.x, it.r), Math.max(it.r, W - it.r));
         it.y = Math.min(Math.max(it.y, it.r), Math.max(it.r, H - it.r));
@@ -234,45 +238,25 @@
           it.shown = true;
           it.el.classList.add('ready');
         }
-        it.el.style.transform = 'translate(' + (it.x - it.r) + 'px,' + (it.y - it.r) + 'px)';
+        var sc = 1 - 0.55 * prog, lift = -80 * prog * (0.6 + it.f * 0.5);
+        it.el.style.transform = 'translate(' + (it.x - it.r) + 'px,' + (it.y - it.r + lift) + 'px) scale(' + sc + ')';
       });
-    }
-
-    /* 원과 사각형 충돌: 밀어내고 법선 방향으로 튕기기 */
-    function bounceOff(a, o) {
-      var cx = Math.max(o.l, Math.min(a.x, o.r)), cy = Math.max(o.t, Math.min(a.y, o.b));
-      var dx = a.x - cx, dy = a.y - cy, d2 = dx * dx + dy * dy;
-      if (d2 >= a.r * a.r) return false;
-      var nx, ny, push;
-      if (d2 < 1e-6) {
-        /* 중심이 사각형 안: 가장 가까운 변으로 내보내기 */
-        var dl = a.x - o.l, dr = o.r - a.x, dt = a.y - o.t, db = o.b - a.y;
-        var m = Math.min(dl, dr, dt, db);
-        if (m === dl) { nx = -1; ny = 0; push = dl + a.r; }
-        else if (m === dr) { nx = 1; ny = 0; push = dr + a.r; }
-        else if (m === dt) { nx = 0; ny = -1; push = dt + a.r; }
-        else { nx = 0; ny = 1; push = db + a.r; }
-      } else {
-        var d = Math.sqrt(d2);
-        nx = dx / d; ny = dy / d; push = a.r - d;
-      }
-      a.x += nx * push; a.y += ny * push;
-      var vn = a.vx * nx + a.vy * ny;
-      if (vn < 0) { a.vx -= 2 * vn * nx; a.vy -= 2 * vn * ny; }
-      return true;
     }
 
     function step(now) {
       var dt = last ? Math.min(0.05, (now - last) / 1000) : 0.016;
       last = now;
-      if (placed && W > 80) {
-        var obs = obstacles();
+      if (placed && prog < 1) {
         items.forEach(function (a) {
           if (a.paused) return;
           var sp = Math.sqrt(a.vx * a.vx + a.vy * a.vy) || 1;
           var k = sp < 90 ? 90 / sp : sp > 220 ? 220 / sp : 1;
           a.vx *= k; a.vy *= k;
           a.x += a.vx * dt; a.y += a.vy * dt;
+          if (a.x < a.r) { a.x = a.r; a.vx = Math.abs(a.vx); }
+          if (a.x > W - a.r) { a.x = W - a.r; a.vx = -Math.abs(a.vx); }
+          if (a.y < a.r) { a.y = a.r; a.vy = Math.abs(a.vy); }
+          if (a.y > H - a.r) { a.y = H - a.r; a.vy = -Math.abs(a.vy); }
         });
         /* 버블끼리 부딪히면 당구공처럼 튕겨나감 (크기에 따라 무게 다름) */
         for (var i = 0; i < items.length; i++) {
@@ -293,24 +277,6 @@
             }
           }
         }
-        items.forEach(function (a) {
-          /* 글 카드에 부딪히면 튕겨나감 */
-          for (var t = 0; t < 2; t++) obs.forEach(function (o) { bounceOff(a, o); });
-          /* 화면 가장자리 */
-          if (a.x < a.r) { a.x = a.r; a.vx = Math.abs(a.vx); }
-          if (a.x > W - a.r) { a.x = W - a.r; a.vx = -Math.abs(a.vx); }
-          if (a.y < a.r) { a.y = a.r; a.vy = Math.abs(a.vy); }
-          if (a.y > H - a.r) { a.y = H - a.r; a.vy = -Math.abs(a.vy); }
-          /* 좁은 틈에 끼면 몸을 줄이고, 넓은 데로 나오면 천천히 원래 크기로 */
-          if (hitsAny(a, obs)) a.k = Math.max(0.3, a.k - 1.5 * dt);
-          else if (a.k < 1) {
-            var save = a.k;
-            a.k = Math.min(1, a.k + 0.35 * dt);
-            setSize(a);
-            if (hitsAny(a, obs)) a.k = save;
-          }
-          setSize(a);
-        });
         draw();
       }
       requestAnimationFrame(step);
@@ -323,7 +289,7 @@
         var ang = Math.random() * Math.PI * 2, sp = 110 + Math.random() * 90;
         var it = {
           el: el, fixed: parseInt(el.getAttribute('data-diameter'), 10) || 0,
-          f: 0.8 + Math.random() * 0.4, k: 1, s0: 100, r: 1, m: 1, x: 0, y: 0,
+          f: 0.8 + Math.random() * 0.4, r: 1, m: 1, x: 0, y: 0,
           vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, paused: false,
           img: el.querySelector('img'), shown: false
         };
@@ -332,6 +298,12 @@
         return it;
       });
       relayout();
+      onScroll();
+      window.addEventListener('scroll', onScroll, { passive: true });
+      if (arrow) arrow.addEventListener('click', function () {
+        var list = document.getElementById('post-list');
+        if (list) list.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+      });
       if (window.ResizeObserver) new ResizeObserver(relayout).observe(box);
       window.addEventListener('resize', relayout);
       window.addEventListener('load', relayout);
