@@ -4,11 +4,9 @@ date: 2026-10-08 01:30:33 +0900
 categories: [공모전/자격증]
 tags: [flutter, iot, onem2m, mqtt, arduino]
 image:
-  path: /assets/img/posts/smart-pill-dispenser/architecture.jpg
+  path: /assets/img/posts/smart-pill-dispenser/app-icon.jpg
+  alt: 앱 아이콘
 ---
-
-![앱 아이콘](/assets/img/posts/smart-pill-dispenser/app-icon.jpg)
-_앱 아이콘_
 
 ## 프로젝트 개요
 
