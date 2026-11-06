@@ -5,7 +5,7 @@ categories: [개발]
 tags: [radixmend, sglang, kv-cache, triton]
 ---
 
-> RadixMend 16주 프로젝트의 1주차 기록. 이번 주는 코드를 한 줄도 고치지 않고, SGLang이 KV 캐시를 실제로 어떻게 다루는지 따라가는 데 거의 다 썼다.
+> RadixMend 16주 프로젝트의 1주차 기록. 이번 주는 코드를 한 줄도 고치지 않고 SGLang이 KV 캐시를 실제로 어떻게 다루는지 따라가는 데 거의 다 썼다.
 
 ## 이번 주에 하기로 한 것 (WBS)
 
@@ -16,7 +16,7 @@ tags: [radixmend, sglang, kv-cache, triton]
 
 ## 버전은 v0.5.22로 고정
 
-분석을 시작한 시점의 최신 릴리스가 v0.5.22(commit baa9befa3)였고, 프로젝트가 끝날 때까지 이 버전으로 간다. SGLang은 요즘 캐시 쪽 구조를 꽤 자주 바꾸고 있어서, 중간에 버전을 올리면 패치를 처음부터 다시 맞춰야 할 수도 있다.
+분석을 시작한 시점의 최신 릴리스가 v0.5.22(commit baa9befa3)였고 프로젝트가 끝날 때까지 이 버전으로 간다. SGLang은 요즘 캐시 쪽 구조를 꽤 자주 바꾸고 있어서 중간에 버전을 올리면 패치를 처음부터 다시 맞춰야 할 수도 있다.
 
 의존성을 보니 torch 2.14.1에 flashinfer 0.7.1(cu13)이다. CUDA 13 기준이라 GPU 서버를 받으면 드라이버가 CUDA 13을 지원하는지부터 봐야 한다.
 
@@ -24,9 +24,9 @@ tags: [radixmend, sglang, kv-cache, triton]
 
 기술서를 쓸 때는 mem\_cache/radix\_cache.py의 RadixCache를 머릿속에 두고 설계했다. 막상 요청 하나가 들어와서 KV가 저장되고 다시 읽히기까지를 따라가 보니 생각과 다른 부분이 여럿 나왔다.
 
-- **lock\_ref가 노드에 바로 붙어 있지 않다.** 노드마다 FULL/SWA/MAMBA 같은 component별 데이터가 따로 있고, KV 슬롯 번호와 참조 카운트는 node.component\_data[FULL] 안에 들어 있다.
+- **lock\_ref가 노드에 바로 붙어 있지 않다.** 노드마다 FULL/SWA/MAMBA 같은 component별 데이터가 따로 있고 KV 슬롯 번호와 참조 카운트는 node.component\_data[FULL] 안에 들어 있다.
 - **root는 KV를 안 가진다.** 이건 예상대로였다. 그래서 제일 많이 공유되는 노드는 root의 바로 아래 자식들, 즉 첫 레벨 노드다.
-- **KV를 저장하는 커널은 Triton이 아니라 JIT로 빌드하는 CUDA C++ 코드다.** slot 번호가 범위 안인지 device assert로 확인하고, padding용 slot 0에는 쓰지 않는다. 저장할 때 체크워드를 같이 만들려면(encode-at-store) 이 CUDA 코드를 고치거나, 같은 자리에 Triton 커널을 끼워 넣어야 한다. 프로토타입은 Triton 쪽이 훨씬 빠를 것 같다.
+- **KV를 저장하는 커널은 Triton이 아니라 JIT로 빌드하는 CUDA C++ 코드다.** slot 번호가 범위 안인지 device assert로 확인하고 padding용 slot 0에는 쓰지 않는다. 저장할 때 체크워드를 같이 만들려면(encode-at-store) 이 CUDA 코드를 고치거나, 같은 자리에 Triton 커널을 끼워 넣어야 한다. 프로토타입은 Triton 쪽이 훨씬 빠를 것 같다.
 
 보호할 인덱스 텐서들의 실제 모습은 이랬다.
 
@@ -49,10 +49,10 @@ tags: [radixmend, sglang, kv-cache, triton]
 고른 이유는 세 가지다.
 
 1. decode, extend, kv\_indices 생성 커널이 전부 저장소 안에 Triton으로 있다.
-2. decode 커널(\_fwd\_grouped\_kernel\_stage1)은 head\_dim이 128이면 K 타일의 열 하나가 딱 (토큰, KV 헤드) 벡터 하나다. 게다가 벡터 하나를 스텝·레이어마다 한 번만 읽는다. 읽자마자 검사하고 레지스터에서 고치면 되고, 같은 벡터를 두 번 검사할 일도 없다.
-3. extend 커널은 같은 prefix 벡터를 여러 번 읽는다. 오류 로그에 중복이 생긴다는 얘기라서, 메모리 고치는 일을 별도 scrub 커널로 빼 둔 기술서 설계가 맞았다는 근거가 됐다.
+2. decode 커널(\_fwd\_grouped\_kernel\_stage1)은 head\_dim이 128이면 K 타일의 열 하나가 딱 (토큰, KV 헤드) 벡터 하나다. 게다가 벡터 하나를 스텝·레이어마다 한 번만 읽는다. 읽자마자 검사하고 레지스터에서 고치면 되고 같은 벡터를 두 번 검사할 일도 없다.
+3. extend 커널은 같은 prefix 벡터를 여러 번 읽는다. 오류 로그에 중복이 생긴다는 얘기라서 메모리 고치는 일을 별도 scrub 커널로 빼 둔 기술서 설계가 맞았다는 근거가 됐다.
 
-A6000에서는 FlashInfer보다 느릴 수 있다. 그래서 비교 기준은 "아무것도 안 고친 Triton"으로 잡고, FlashInfer 수치는 참고용으로만 붙이기로 했다.
+A6000에서는 FlashInfer보다 느릴 수 있다. 그래서 비교 기준은 "아무것도 안 고친 Triton"으로 잡고 FlashInfer 수치는 참고용으로만 붙이기로 했다.
 
 ## 실험 환경과 워크로드
 
@@ -77,7 +77,7 @@ Qwen3-8B를 주 모델로 둔 건 선행 연구(Yamamoto & Matsuura, 2026)가 �
 
 ## 결함 주입 도구 시작
 
-GPU가 없어도 테스트할 수 있게 torch 텐서만 건드리도록 만들었다. CPU에서 테스트하고, GPU에서는 같은 코드를 그대로 쓰면 된다.
+GPU가 없어도 테스트할 수 있게 torch 텐서만 건드리도록 만들었다. CPU에서 테스트하고 GPU에서는 같은 코드를 그대로 쓰면 된다.
 
 ```python
 from radixmend import fault_inject as fi
@@ -96,7 +96,7 @@ fi.revert(recs, k_buffer=pool.k_buffer, v_buffer=pool.v_buffer)  # 끝나면 되
 
 **문제.** 모듈 C는 트리 노드에 poisoned 플래그랑 epoch를 붙여야 한다. 그런데 기본 설정으로는 노드 객체를 아예 꺼낼 수가 없었다. 트리 어댑터 코드를 열어 보니 root\_node와 node\_by\_id가 그냥 NotImplementedError를 던지게 되어 있었다.
 
-**원인.** v0.5.22의 기본 캐시는 UnifiedRadixCache이고, 그 안의 트리 코어 기본값이 Rust 구현이다(SGLANG\_UNIFIED\_RADIX\_TREE\_CORE\_BACKEND = "rust"). Rust 코어는 Python 쪽에 노드를 넘겨주지 않는다. 예전 RadixCache는 이제 일부 경로에서만 쓰인다.
+**원인.** v0.5.22의 기본 캐시는 UnifiedRadixCache이고 그 안의 트리 코어 기본값이 Rust 구현이다(SGLANG\_UNIFIED\_RADIX\_TREE\_CORE\_BACKEND = "rust"). Rust 코어는 Python 쪽에 노드를 넘겨주지 않는다. 예전 RadixCache는 이제 일부 경로에서만 쓰인다.
 
 **해결.** 환경 변수로 Python 코어를 강제했다. 비교 실험이 공정하려면 기준선도 같은 설정으로 돌려야 한다. Python 코어가 얼마나 느린지는 GPU를 받으면 따로 재 볼 생각이다.
 
@@ -110,7 +110,7 @@ export SGLANG_UNIFIED_RADIX_TREE_CORE_BACKEND=python
 
 **원인.** 위에서 말한 것처럼 지금 노드는 component\_data[FULL].value, component\_data[FULL].lock\_ref에 값을 들고 있다.
 
-**해결.** 노드에서 값을 꺼내는 함수를 하나 두고, 두 구조를 모두 읽게 바꿨다. 두 구조를 흉내 낸 가짜 노드로 테스트도 붙였다.
+**해결.** 노드에서 값을 꺼내는 함수를 하나 두고 두 구조를 모두 읽게 바꿨다. 두 구조를 흉내 낸 가짜 노드로 테스트도 붙였다.
 
 ```python
 FULL_COMPONENT = 0  # ComponentType.FULL
@@ -144,10 +144,10 @@ def _bit_value(bit, dtype):
 
 ## 남은 일
 
-- GPU 서버에서 드라이버 확인하고, Triton 백엔드로 모델 띄우기
+- GPU 서버에서 드라이버 확인하고 Triton 백엔드로 모델 띄우기
 - Python 트리 코어가 Rust보다 얼마나 느린지 재기
 - 워크로드 생성과 서버 실행 스크립트는 GPU에서 처음 돌릴 때 마무리
 
 ## 다음 주
 
-결함 주입기를 마무리하고, SECDED 참조 구현을 만들어서 단일·이중 오류를 하나도 빼지 않고 검증한다.
+결함 주입기를 마무리하고 SECDED 참조 구현을 만들어서 단일·이중 오류를 하나도 빼지 않고 검증한다.
