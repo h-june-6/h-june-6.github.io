@@ -4,10 +4,16 @@ title: 블로그 / 기술문서
 icon: fas fa-pen-nib
 order: 4
 group: category
-category_key: 기술문서
+category_keys: [블로그, 기술문서]
 ---
-{%- assign posts = site.categories[page.category_key] -%}
-{%- if posts and posts.size > 0 -%}
+{%- assign posts = "" | split: "" -%}
+{%- for key in page.category_keys -%}
+  {%- if site.categories[key] -%}
+    {%- assign posts = posts | concat: site.categories[key] -%}
+  {%- endif -%}
+{%- endfor -%}
+{%- assign posts = posts | uniq | sort: "date" | reverse -%}
+{%- if posts.size > 0 -%}
 <ul class="content ps-0">
   {%- for post in posts -%}
   <li class="d-flex justify-content-between px-md-3">
