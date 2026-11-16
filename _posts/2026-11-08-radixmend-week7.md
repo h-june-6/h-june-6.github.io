@@ -1,5 +1,5 @@
 ---
-title: "[RadixMend 7주차] 싸게 검사하는 방법을 네 개 만들었고, 그중 둘은 생성 중 주입에서 무너졌다"
+title: "[RadixMend 7주차] 모듈 A 검사 비용 줄이기와 교정·탐지율 측정"
 date: 2026-11-08 21:00:00 +0900
 categories: [개발]
 tags: [radixmend, sglang, triton, secded, ecc]

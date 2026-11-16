@@ -1,5 +1,5 @@
 ---
-title: "[RadixMend 3주차] 서버를 받았고, 비트 하나가 얼마나 위험한지 처음 재 봤다"
+title: "[RadixMend 3주차] GPU 서버 환경 구축과 K·V 비트 위치별 출력 변화율 측정"
 date: 2026-10-11 21:00:00 +0900
 categories: [개발]
 tags: [radixmend, sglang, kv-cache, bit-flip, fault-injection]
