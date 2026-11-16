@@ -1,6 +1,6 @@
 ---
 title: "[킥오프&WBS] Radixmend : SGLang Radix Tree kv캐시의 비트플립 자가치유"
-date: 2026-10-17 00:27:19 +0900
+date: 2026-09-20 21:00:00 +0900
 categories: [개발]
 tags: [radixmend, sglang, kv-cache, secded, bit-flip]
 ---
