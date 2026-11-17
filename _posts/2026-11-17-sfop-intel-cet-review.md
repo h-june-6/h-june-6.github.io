@@ -3,6 +3,9 @@ title: "[논문 리뷰] Crashing Through Defenses: Exploiting Segfaults and Chai
 date: 2026-11-17 17:30:00 +0900
 categories: [논문/컨퍼런스]
 tags: [paper-review, sfop, intel-cet, srop, code-reuse, ieee-sp]
+image:
+  path: /assets/img/posts/sfop-intel-cet-review/cover.webp
+  alt: "SFOP 소개 이미지 (출처: CISPA)"
 ---
 
 -   **저자:** Marcos Bajo, Ritvik Goyal, Apostolos Chatzianagnostou,
@@ -135,6 +138,9 @@ Handler를 등록한 다음에는 실제로 SIGSEGV를 발생시켜야 한다. �
 
 따라서 새 Handler가 등록된 직후 같은 `sigaction()` 호출 과정에서 오류가 발생하고, 방금 등록한 Handler가 실행된다. 별도의 프로세스가 시그널을 보내거나 이후 프로그램 동작에서 우연히 오류가 발생하기를 기다리지 않아도 공격 흐름을 다음 단계로 연결할 수 있다.
 
+![x86-64 Linux Signal Frame 구조](/assets/img/posts/sfop-intel-cet-review/signal-frame.webp){: width="560" }
+_x86-64 Linux Signal Frame 구조. 일반적인 Signal Frame을 개념적으로 보여 주는 그림으로, SFOP 논문의 프레임 구조와 완전히 같지는 않다. (출처: [angold4, Sigreturn Oriented Programming Attack](https://angold4.wordpress.com/2021/02/01/sigreturn-oriented-programming-attack/))_
+
 **④ Sigframe Pivoting을 이용한 실행 상태 조작**
 
 SIGSEGV가 발생하면 Linux 커널은 Signal Handler를 실행하기 전에 현재 CPU의 실행 상태를 저장한다. 이때 생성되는 자료구조가 `sigframe`이다. 이 프레임에는 레지스터 상태를 담은 `ucontext`, 시그널 정보를 담은 `siginfo` 등이 포함된다.
@@ -152,6 +158,9 @@ SFOP는 이 동작을 이용한다. **Sigframe Pivoting은 Signal Handler 실행
 | Classic Sigframe Pivoting        | `leave; ret` Gadget을 이용해 RSP를 RBP가 가리키는 위치로 이동                                            |
 | Unwinding-based Pivoting         | 스택 프레임에 연결된 RBP 값들을 따라가며 공격자가 준비한 위치로 이동                                     |
 | Double-Partial Sigframe Pivoting | RBP가 공격자가 제어하는 메모리를 직접 가리키지 않는 상황에서도 부분적인 스택 조작을 조합해 Pivoting 수행 |
+
+![Linux 시그널 처리와 sigreturn 흐름](/assets/img/posts/sfop-intel-cet-review/signal-flow.webp)
+_커널이 Signal Frame을 만들고 Handler를 실행한 뒤 `sigreturn`으로 실행 상태를 복구하는 흐름 (출처: [OS 강의 자료 lec10](https://os-lecture.github.io/2023S-os-lectures/lec10/p1-ipcoverview.html))_
 
 **⑤ `rt_sigreturn`을 이용한 공격자 제어 실행 상태 복구**
 
@@ -194,6 +203,9 @@ x86-64 Linux의 System V AMD64 ABI에서는 정수형 또는 포인터형 함수
 이 과정에서 RBP와 스택 프레임의 상태를 유지하는 것이 중요하다. 논문은 함수 호출 규약과 스택 프레임의 특성을 이용해 다음 Handler 실행에서도 Pivoting에 필요한 상태를 확보한다. 또한 시그널이 처리되는 동안 동일한 시그널이 차단되는 기본 동작을 고려해 중첩 시그널 처리 조건을 구성한다.
 
 결과적으로 fSFOP는 메모리 손상 취약점으로 시작한 공격을 `sigaction()` 호출, Early Kill, Sigframe Pivoting, `rt_sigreturn`, CET 위반에 따른 SIGSEGV 재발생으로 연결한다. 이 반복 구조를 통해 CET가 활성화된 환경에서도 여러 함수를 공격자가 지정한 인자로 실행하는 코드 재사용 공격을 구성한다.
+
+![ROP Gadget Chain 개념도](/assets/img/posts/sfop-intel-cet-review/rop-chain.webp){: width="520" }
+_일반적인 ROP 공격에서 Gadget이 `ret`으로 연결되는 구조. SFOP의 공격 체인 그림이 아니라 비교용 그림이다. (출처: Y. Zhou et al., [ACE-M](https://www.mdpi.com/2079-9292/11/6/912), Electronics, 2022, CC BY 4.0)_
 
 ### 핵심 정리
 
