@@ -1,5 +1,5 @@
 ---
-title: "[vLLM] vs [SGLang]"
+title: "[AI Security] [vLLM] vs [SGLang]"
 date: 2026-09-22 23:56:15 +0900
 categories: [기술문서]
 tags: [llm-serving, vllm, sglang, kv-cache]
