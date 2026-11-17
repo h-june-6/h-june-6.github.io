@@ -205,7 +205,7 @@ x86-64 Linux의 System V AMD64 ABI에서는 정수형 또는 포인터형 함수
 결과적으로 fSFOP는 메모리 손상 취약점으로 시작한 공격을 `sigaction()` 호출, Early Kill, Sigframe Pivoting, `rt_sigreturn`, CET 위반에 따른 SIGSEGV 재발생으로 연결한다. 이 반복 구조를 통해 CET가 활성화된 환경에서도 여러 함수를 공격자가 지정한 인자로 실행하는 코드 재사용 공격을 구성한다.
 
 ![ROP Gadget Chain 개념도](/assets/img/posts/sfop-intel-cet-review/rop-chain.webp){: width="520" }
-_일반적인 ROP 공격에서 Gadget이 `ret`으로 연결되는 구조. SFOP의 공격 체인 그림이 아니라 비교용 그림이다. (출처: Y. Zhou et al., [ACE-M](https://www.mdpi.com/2079-9292/11/6/912), Electronics, 2022, CC BY 4.0)_
+_일반적인 ROP 공격에서 Gadget이 `ret`으로 연결되는 구조. SFOP의 공격 체인 그림이 아니라 비교용 그림이다. (출처: S. Lee, J. Cho, [ACE-M](https://www.mdpi.com/2079-9292/11/6/912), Electronics, 2022, CC BY 4.0)_
 
 ### 핵심 정리
 
