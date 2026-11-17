@@ -100,55 +100,112 @@ Shadow Stack은 함수가 반환할 때 일반 스택에 저장된 반환
 
 ### 2-1. SFOP의 동작 원리
 
-SFOP는 Segmentation Fault를 반복적으로 이용해 공격 단계를 연결하는 코드
-재사용 공격이다. 일반적으로 Segmentation Fault가 발생하면 프로세스가
-종료되지만, Signal Handler가 등록되어 있으면 해당 Handler가 실행된다.
-SFOP는 이 동작을 공격에 이용한다.
+논문에서는 SFOP를 두 가지 방식으로 구분한다.
 
-공격 흐름은 다음과 같다.
+- **fSFOP(Forward SFOP):** SIGSEGV를 반복적으로 발생시키고 Signal Handler를 재실행하는 방식으로 공격 체인을 구성한다.
+- **bSFOP(Backward SFOP):** Shadow Stack에 값을 주입하고 Shadow Stack Pointer(SSP)를 조작해 반환 주소 검사를 우회하는 방식으로 공격 체인을 구성한다.
 
-1.  메모리 손상 취약점을 이용해 필요한 포인터나 데이터를 변조한다.
-2.  `sigaction()`으로 SIGSEGV Handler를 등록한다.
-3.  의도적으로 오류를 발생시켜 SIGSEGV를 일으킨다.
-4.  Signal Handler와 Signal Frame 처리 과정을 이용해 실행 상태를
-    조작한다.
-5.  `rt_sigreturn`을 통해 레지스터와 실행 위치를 복원하고 다음 공격
-    단계로 넘어간다.
-6.  필요한 경우 이 과정을 반복해 여러 함수를 연결한다.
+이하에서는 반복적인 시그널 처리를 이용하는 fSFOP의 동작 과정을 설명한다.
 
-Signal Frame은 시그널이 발생했을 때 중단된 프로그램의 실행 상태를
-저장하는 자료구조다. `rt_sigreturn`은 저장된 정보를 이용해 실행을
-재개하는 과정에 관여한다. 저자들은 이 기능이 CET와 함께 동작하는 방식을
-분석해 공격 체인을 구성한다.
+**① 메모리 손상 취약점을 이용한 초기 제어 흐름 확보**
 
-### 2-2. fSFOP와 bSFOP
+공격자는 포인터를 이용해 실행 흐름을 가로채고, 이후 CET의 IBT 검사를 통과할 수 있는 `endbr64` 기반 Gadget을 연결한다. 각 Gadget은 간접 호출 또는 간접 점프로 다음 Gadget에 제어를 전달한다. 이 Gadget Chain을 통해 `sigaction()` 호출에 필요한 인자를 준비하고, 공격자가 지정한 SIGSEGV Handler를 등록하는 단계까지 도달한다.
 
-논문은 SFOP를 fSFOP와 bSFOP 두 방식으로 나누어 설명한다.
+**② `sigaction()`을 이용한 SIGSEGV Handler 등록**
 
-fSFOP는 SIGSEGV가 발생하고 Signal Handler가 실행되는 과정을 반복적으로
-활용한다. 이 과정에서 Early Kill과 Sigframe Pivoting 등의 기법을
-사용한다. 시그널 처리 과정에서 공격자가 준비한 실행 상태로 이동한 뒤
-다음 함수를 실행하도록 만드는 방식이다.
+Linux에서 `sigaction()`은 특정 시그널이 발생했을 때 실행할 사용자 정의 함수를 등록하는 인터페이스다. SFOP에서는 이 기능을 이용해 공격자가 제어할 수 있는 Signal Handler를 SIGSEGV에 등록한다.
 
-bSFOP는 Shadow Stack을 공격 흐름에 이용한다. 논문은 Custom Restorer와
-Shadow Stack Pointer(SSP) 관련 동작을 분석하고, 이를 바탕으로 Recursive
-Shadow Stack을 구성하는 방법을 제시한다. fSFOP와 bSFOP는 모두 Linux의
-시그널 처리 과정을 이용하지만, 공격 체인을 구성할 때 활용하는 지점은
-서로 다르다.
+`sigaction()`은 다음 세 가지 인자를 받는다.
 
-### 2-3. 기존 공격과의 비교
+| 인자     | 역할                                   |
+|:---------|:---------------------------------------|
+| `signum` | Handler를 등록할 시그널 번호           |
+| `act`    | 새로 등록할 Handler의 정보             |
+| `oldact` | 기존 Handler 정보를 저장할 메모리 주소 |
 
-| 공격 기법 | 주요 아이디어 또는 활용 요소 |
-|---|---|
-| ROP | 기존 코드 조각을 연결해 실행 흐름 구성 |
-| SROP | Signal Frame을 이용해 레지스터와 실행 상태 조작 |
-| COOP | C++ 객체와 가상 함수 호출 구조 활용 |
-| FOP | 프로그램에 존재하는 함수를 연결해 악의적인 동작 구성 |
-| CFOP | C++ Coroutine의 실행 구조 활용 |
-| SFOP | Linux Signal Handling과 CET의 상호작용 활용 |
+`act`에는 실행할 Handler의 주소와 시그널 마스크, 플래그 등의 정보가 들어간다. `sa_flags`는 시그널 처리 방식을 지정하며, 논문에서 다루는 시그널 중첩 처리와 관련된 옵션도 이 부분에 해당한다.
 
-SFOP는 특정 C++ 언어 구조 대신 Linux의 시그널 처리 과정을 이용한다. 이
-점이 기존 기법과 비교했을 때 가장 눈에 띄는 차이다.
+공격자는 앞 단계에서 구성한 Gadget Chain으로 `sigaction()`을 호출하고, SIGSEGV Handler와 필요한 옵션을 등록한다. 이 단계의 목적은 이후 SIGSEGV가 발생했을 때 커널이 공격자가 지정한 Handler로 제어를 전달하도록 만드는 것이다.
+
+**③ Early Kill을 이용한 즉각적인 SIGSEGV 발생**
+
+Handler를 등록한 다음에는 실제로 SIGSEGV를 발생시켜야 한다. 논문에서는 이를 위해 `sigaction()` 함수 내부의 잘못된 메모리 접근을 이용하는 **Early Kill** 기법을 제시한다.
+
+`oldact`는 기존 시그널 처리 정보를 저장하기 위한 포인터다. 공격자는 이 인자에 유효하지 않은 메모리 주소를 전달한다. 새로운 Handler를 등록하는 커널 측 처리가 먼저 이루어진 뒤, libc가 기존 Handler 정보를 `oldact`가 가리키는 메모리로 복사하는 과정에서 잘못된 주소에 접근해 SIGSEGV가 발생한다.
+
+따라서 새 Handler가 등록된 직후 같은 `sigaction()` 호출 과정에서 오류가 발생하고, 방금 등록한 Handler가 실행된다. 별도의 프로세스가 시그널을 보내거나 이후 프로그램 동작에서 우연히 오류가 발생하기를 기다리지 않아도 공격 흐름을 다음 단계로 연결할 수 있다.
+
+**④ Sigframe Pivoting을 이용한 실행 상태 조작**
+
+SIGSEGV가 발생하면 Linux 커널은 Signal Handler를 실행하기 전에 현재 CPU의 실행 상태를 저장한다. 이때 생성되는 자료구조가 `sigframe`이다. 이 프레임에는 레지스터 상태를 담은 `ucontext`, 시그널 정보를 담은 `siginfo` 등이 포함된다.
+
+`ucontext` 내부의 `sigcontext`에는 RIP, RSP 및 함수 인자 전달에 사용하는 레지스터 등이 저장된다. 커널은 `sigframe`을 스택에 배치한 후 RIP를 등록된 Signal Handler 주소로 설정하고, RDI·RSI·RDX에는 각각 시그널 번호, `siginfo` 주소, `ucontext` 주소를 전달한다.
+
+일반적인 시그널 처리에서는 Handler가 종료되면 복귀 코드인 Restorer가 실행되고, 이 코드가 `rt_sigreturn` 시스템 콜을 호출한다. 커널은 이때 스택에 놓인 시그널 프레임을 바탕으로 CPU 실행 상태를 복구한다.
+
+SFOP는 이 동작을 이용한다. **Sigframe Pivoting은 Signal Handler 실행 중 RSP를 변경하여, 이후 `rt_sigreturn`이 참조할 실행 상태의 위치를 공격자가 준비한 메모리 영역으로 전환하는 기법이다.** 공격자는 미리 위조된 실행 상태를 메모리에 배치하고, Handler 실행 과정에서 RSP가 해당 영역을 가리키도록 만든다. 이후 `rt_sigreturn`이 실행되면 커널은 공격자가 준비한 레지스터 값과 실행 위치를 복구하게 된다.
+
+논문은 다음과 같은 Pivoting 방법을 제시한다.
+
+| 기법                             | 동작 원리                                                                                                |
+|:---------------------------------|:---------------------------------------------------------------------------------------------------------|
+| Classic Sigframe Pivoting        | `leave; ret` Gadget을 이용해 RSP를 RBP가 가리키는 위치로 이동                                            |
+| Unwinding-based Pivoting         | 스택 프레임에 연결된 RBP 값들을 따라가며 공격자가 준비한 위치로 이동                                     |
+| Double-Partial Sigframe Pivoting | RBP가 공격자가 제어하는 메모리를 직접 가리키지 않는 상황에서도 부분적인 스택 조작을 조합해 Pivoting 수행 |
+
+**⑤ `rt_sigreturn`을 이용한 공격자 제어 실행 상태 복구**
+
+Sigframe Pivoting이 성공하면 Signal Handler는 Restorer로 복귀하고, `__restore_rt`가 `rt_sigreturn` 시스템 콜을 실행한다.
+
+일반적인 상황에서 `rt_sigreturn`은 시그널 발생 이전의 실행 상태를 복구하는 기능이다. 그러나 SFOP에서는 RSP를 공격자가 준비한 프레임 위치로 이동시켰기 때문에, 커널이 복구하는 실행 상태도 공격자가 구성한 값으로 바뀐다.
+
+공격자는 이를 통해 다음과 같은 레지스터를 설정할 수 있다.
+
+| 레지스터    | 용도                                |
+|:------------|:------------------------------------|
+| RIP         | 다음에 실행할 함수 또는 명령어 주소 |
+| RSP         | 다음 실행에 사용할 스택 위치        |
+| RDI         | 함수의 첫 번째 인자                 |
+| RSI         | 함수의 두 번째 인자                 |
+| RDX         | 함수의 세 번째 인자                 |
+| RCX, R8, R9 | 나머지 함수 인자                    |
+
+x86-64 Linux의 System V AMD64 ABI에서는 정수형 또는 포인터형 함수 인자 6개가 RDI, RSI, RDX, RCX, R8, R9 순서로 전달된다. 따라서 공격자는 `rt_sigreturn`으로 RIP와 인자 전달 레지스터를 설정해 원하는 함수를 지정한 인자로 실행할 수 있다.
+
+여기서 CET의 IBT와 관련된 문제가 발생한다. 논문은 커널이 `rt_sigreturn`으로 CPU 레지스터를 복구할 때 복구 대상 RIP에 대해 IBT 검사를 수행하지 않는 동작을 공격에 활용한다. 이를 통해 공격자는 일반적인 간접 분기에서 요구되는 유효한 IBT 진입점 제한을 우회할 수 있다.
+
+다만 `rt_sigreturn`으로 RIP를 복구하는 것만으로 CET의 Shadow Stack 문제까지 자동으로 해결되는 것은 아니다. 함수가 반환할 때 Shadow Stack 검사에 걸릴 수 있으며, fSFOP는 이 검사 실패로 발생하는 SIGSEGV를 다음 공격 단계로 연결한다.
+
+**⑥ Infinite Segfault Looping을 통한 다중 함수 호출**
+
+한 번의 `rt_sigreturn`으로 원하는 함수를 실행하는 것만으로는 여러 함수를 순서대로 호출하기 어렵다. 함수가 반환하는 과정에서 일반 스택과 Shadow Stack의 반환 주소가 일치하지 않으면 CET의 Shadow Stack 검사가 실패할 수 있기 때문이다.
+
+논문에서 주목한 부분은 이러한 CET 위반 처리 과정에서 SIGSEGV가 발생하고, 이미 등록된 SIGSEGV Handler가 다시 실행될 수 있다는 점이다. 공격자는 이 동작을 이용해 다음과 같은 반복 구조를 만든다.
+
+1.  `rt_sigreturn`으로 공격자가 지정한 함수에 진입한다.
+2.  함수가 실행된 뒤 반환을 시도한다.
+3.  Shadow Stack 검사 실패로 SIGSEGV가 발생한다.
+4.  미리 등록한 Signal Handler가 다시 실행된다.
+5.  Handler에서 Sigframe Pivoting을 수행한다.
+6.  다음 `rt_sigreturn`으로 새로운 실행 상태를 복구하고 다음 함수를 실행한다.
+
+이 과정이 반복되면 공격자는 여러 함수를 차례로 실행할 수 있다. 논문은 이 반복 구조를 **Infinite Segfault Looping**이라고 부른다.
+
+이 과정에서 RBP와 스택 프레임의 상태를 유지하는 것이 중요하다. 논문은 함수 호출 규약과 스택 프레임의 특성을 이용해 다음 Handler 실행에서도 Pivoting에 필요한 상태를 확보한다. 또한 시그널이 처리되는 동안 동일한 시그널이 차단되는 기본 동작을 고려해 중첩 시그널 처리 조건을 구성한다.
+
+결과적으로 fSFOP는 메모리 손상 취약점으로 시작한 공격을 `sigaction()` 호출, Early Kill, Sigframe Pivoting, `rt_sigreturn`, CET 위반에 따른 SIGSEGV 재발생으로 연결한다. 이 반복 구조를 통해 CET가 활성화된 환경에서도 여러 함수를 공격자가 지정한 인자로 실행하는 코드 재사용 공격을 구성한다.
+
+### 핵심 정리
+
+fSFOP의 핵심은 SIGSEGV 자체가 아니라, **SIGSEGV 발생과 커널의 실행 상태 복구 과정을 반복적인 코드 재사용 공격의 연결 장치로 활용한다는 점**이다.
+
+| 구분             | 일반적인 ROP                                | fSFOP                                     |
+|:-----------------|:--------------------------------------------|:------------------------------------------|
+| 공격 출발점      | 메모리 손상 취약점                          | 메모리 손상 취약점                        |
+| 공격 체인 구성   | Gadget의 `ret` 연결                         | Signal Handler와 `rt_sigreturn` 반복      |
+| 실행 상태 조작   | 스택 및 레지스터 조작                       | Sigframe Pivoting                         |
+| 다음 단계로 이동 | Gadget의 반환 주소                          | SIGSEGV 재발생 및 Handler 재실행          |
+| CET 대응         | Shadow Stack에 의해 반환 주소 변조가 탐지됨 | CET와 Linux 시그널 처리의 상호작용을 악용 |
 
 ## 3. 실험과 평가, 한계
 
