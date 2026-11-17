@@ -16,6 +16,10 @@ image:
     Chaining around Intel
     CET](https://syssec.cispa.de/papers/sfop-ieeesp2026.pdf)
 
+## 논문을 고른 이유
+
+이전에 ROP와 같은 코드 재사용 공격을 학습하면서 이를 방어하기 위한 Intel CET도 알게 되었다. 그런데 CET가 나오고 나서는 ROP와 같은 공격이 불가능할거라고 생각했는데 CET를 우회한 논문이 있다고 해서 찾아보게 되었다. CET가 적용된 환경에서는 공격자가 어떤 방법으로 실행 흐름을 조작할 수 있을지 궁금증이 생겼던 것 같다.
+
 ## 0. 읽기 전 정리
 
 이 논문은 Intel CET가 적용된 Linux 환경에서 메모리 손상 취약점을 이용해 
