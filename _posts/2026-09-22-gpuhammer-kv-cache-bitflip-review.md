@@ -1,5 +1,5 @@
 ---
-title: "[선행 연구 리뷰 & 후속 연구 방향성] GPUHammer & Bit-Flip Vulnerability of Shared KV-Cache Blocks"
+title: "[논문 리뷰] GPUHammer & Bit-Flip Vulnerability of Shared KV-Cache Blocks"
 date: 2026-09-22 21:11:29 +0900
 categories: [논문/컨퍼런스]
 tags: [paper-review, rowhammer, gpuhammer, kv-cache, radixmend]
