@@ -1,7 +1,7 @@
 ---
 title: "[Bug Bounty] Fuzzing과 Fuzzer"
 date: 2026-11-24 00:30:00 +0900
-categories: [Bug Bounty]
+categories: [기술문서]
 tags: [fuzzing, fuzzer, afl, aflplusplus, libfuzzer, honggfuzz, syzkaller, boofuzz]
 image:
   path: /assets/img/posts/fuzzing/fuzzer-map.svg
