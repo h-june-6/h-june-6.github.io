@@ -1,6 +1,6 @@
 ---
 title: "[RadixMend 4주차] sink 위치·인덱스 결함의 영향과 부모 노드 오염이 자식 노드로 번지는지 확인"
-date: 2026-10-18 21:00:00 +0900
+date: 2026-09-20 21:00:00 +0900
 categories: [개발]
 tags: [radixmend, sglang, kv-cache, bit-flip, fault-injection]
 ---

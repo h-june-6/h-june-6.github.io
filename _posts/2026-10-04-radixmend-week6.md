@@ -1,6 +1,6 @@
 ---
 title: "[RadixMend 6주차] 모듈 A 구현: attention 커널 안 SECDED 검사와 extend(prefill) 경로 보호"
-date: 2026-11-01 21:00:00 +0900
+date: 2026-10-04 21:00:00 +0900
 categories: [개발]
 tags: [radixmend, sglang, triton, secded, ecc]
 ---

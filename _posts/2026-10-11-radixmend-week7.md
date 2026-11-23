@@ -1,6 +1,6 @@
 ---
 title: "[RadixMend 7주차] 모듈 A 검사 비용 줄이기와 교정·탐지율 측정"
-date: 2026-11-08 21:00:00 +0900
+date: 2026-10-11 21:00:00 +0900
 categories: [개발]
 tags: [radixmend, sglang, triton, secded, ecc]
 ---

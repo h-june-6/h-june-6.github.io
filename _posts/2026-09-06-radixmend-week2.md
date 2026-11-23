@@ -1,6 +1,6 @@
 ---
 title: "[RadixMend 2주차] 2063비트짜리 코드워드의 오류를 전부 세어 봤다"
-date: 2026-10-04 21:00:00 +0900
+date: 2026-09-06 21:00:00 +0900
 categories: [개발]
 tags: [radixmend, secded, ecc]
 ---

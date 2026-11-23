@@ -1,6 +1,6 @@
 ---
 title: "[RadixMend 8주차] decode 검사 최적화: 레지스터 줄이기와 launch 설정 튜닝"
-date: 2026-11-15 21:00:00 +0900
+date: 2026-10-18 21:00:00 +0900
 categories: [개발]
 tags: [radixmend, sglang, triton, profiling]
 ---

@@ -1,6 +1,6 @@
 ---
 title: "[RadixMend 5주차] hit 시점 해시 기법 이식과 TOCTOU 실험"
-date: 2026-10-25 21:00:00 +0900
+date: 2026-09-27 21:00:00 +0900
 categories: [개발]
 tags: [radixmend, sglang, kv-cache, toctou]
 ---
