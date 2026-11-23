@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 340" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR','Noto Sans CJK KR',sans-serif">
+<defs>
+<marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#535353"/></marker>
+<marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#6f6f6f"/></marker>
+</defs>
+<rect width="960" height="340" rx="16" fill="#fafafa"/>
+<g font-size="17" text-anchor="middle">
+<rect x="30" y="120" width="150" height="76" rx="10" fill="#e8e8e8" stroke="#757575" stroke-width="2"/>
+<text x="105" y="153" font-weight="700" fill="#212121">① 시드 준비</text><text x="105" y="178" font-size="13" fill="#535353">정상 입력 샘플</text>
+<rect x="230" y="120" width="150" height="76" rx="10" fill="#e8e8e8" stroke="#757575" stroke-width="2"/>
+<text x="305" y="153" font-weight="700" fill="#212121">② 입력 변형</text><text x="305" y="178" font-size="13" fill="#535353">변이 또는 생성</text>
+<rect x="430" y="120" width="170" height="76" rx="10" fill="#f1f1f1" stroke="#878787" stroke-width="2"/>
+<text x="515" y="153" font-weight="700" fill="#242424">③ 실행·관찰</text><text x="515" y="178" font-size="13" fill="#535353">대상 프로그램에 입력</text>
+<polygon points="715,108 790,158 715,208 640,158" fill="#eaeaea" stroke="#5c5c5c" stroke-width="2"/>
+<text x="715" y="154" font-weight="700" fill="#1c1c1c">크래시</text><text x="715" y="174" font-size="13" fill="#1c1c1c">/ 멈춤?</text>
+<rect x="820" y="120" width="120" height="76" rx="10" fill="#eaeaea" stroke="#5c5c5c" stroke-width="2"/>
+<text x="880" y="153" font-weight="700" fill="#1c1c1c">④ 저장</text><text x="880" y="178" font-size="13" fill="#535353">원인 분석용</text>
+</g>
+<g stroke="#535353" stroke-width="2" fill="none">
+<line x1="180" y1="158" x2="226" y2="158" marker-end="url(#a)"/>
+<line x1="380" y1="158" x2="426" y2="158" marker-end="url(#a)"/>
+<line x1="600" y1="158" x2="636" y2="158" marker-end="url(#a)"/>
+<line x1="790" y1="158" x2="816" y2="158" marker-end="url(#a)"/>
+<path d="M715,208 V265 H305 V200" marker-end="url(#a)"/>
+<path d="M515,120 V60 H105 V116" stroke="#6f6f6f" stroke-dasharray="7 6" marker-end="url(#g)"/>
+</g>
+<g font-size="14" text-anchor="middle">
+<text x="800" y="146" fill="#5c5c5c" font-weight="700">예</text>
+<text x="510" y="290" fill="#3f3f3f">아니오 → 다음 입력을 만들어 계속 반복</text>
+<text x="310" y="48" fill="#6f6f6f" font-weight="700">새 코드 경로를 연 입력은 시드에 추가 (커버리지 기반 퍼저만)</text>
+</g>
+</svg>

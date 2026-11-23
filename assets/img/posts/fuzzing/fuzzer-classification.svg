@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 380" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR','Noto Sans CJK KR',sans-serif">
+<rect width="960" height="380" rx="16" fill="#fafafa"/>
+<g stroke="#a1a1a1" stroke-width="2" fill="none">
+<path d="M480,82 V110 H165 V140"/><path d="M480,110 V140"/><path d="M480,110 H795 V140"/>
+</g>
+<g text-anchor="middle">
+<rect x="380" y="30" width="200" height="52" rx="10" fill="#282828"/>
+<text x="480" y="63" font-size="19" font-weight="700" fill="#ffffff">퍼저 분류 기준</text>
+<g font-size="17" font-weight="700">
+<rect x="40" y="140" width="250" height="56" rx="10" fill="#e8e8e8" stroke="#757575" stroke-width="2"/><text x="165" y="174" fill="#212121">입력을 어떻게 만드는가</text>
+<rect x="355" y="140" width="250" height="56" rx="10" fill="#f1f1f1" stroke="#878787" stroke-width="2"/><text x="480" y="174" fill="#242424">속을 얼마나 보는가</text>
+<rect x="670" y="140" width="250" height="56" rx="10" fill="#f0f0f0" stroke="#6f6f6f" stroke-width="2"/><text x="795" y="174" fill="#1f1f1f">결과를 반영하는가</text>
+</g>
+<g font-size="15" fill="#282828">
+<rect x="55" y="220" width="220" height="60" rx="8" fill="#ffffff" stroke="#d4d4d4"/><text x="165" y="245" font-weight="700">변이 (Mutation)</text><text x="165" y="267" font-size="13" fill="#535353">정상 입력을 조금씩 바꿈</text>
+<rect x="55" y="292" width="220" height="60" rx="8" fill="#ffffff" stroke="#d4d4d4"/><text x="165" y="317" font-weight="700">생성 (Generation)</text><text x="165" y="339" font-size="13" fill="#535353">형식 규칙대로 새로 만듦</text>
+<rect x="370" y="216" width="220" height="42" rx="8" fill="#ffffff" stroke="#e2e2e2"/><text x="480" y="236" font-weight="700">블랙박스</text><text x="480" y="252" font-size="12" fill="#535353">입출력만 봄</text>
+<rect x="370" y="264" width="220" height="42" rx="8" fill="#ffffff" stroke="#e2e2e2"/><text x="480" y="284" font-weight="700">그레이박스</text><text x="480" y="300" font-size="12" fill="#535353">지나간 코드 경로를 확인</text>
+<rect x="370" y="312" width="220" height="42" rx="8" fill="#ffffff" stroke="#e2e2e2"/><text x="480" y="332" font-weight="700">화이트박스</text><text x="480" y="348" font-size="12" fill="#535353">조건식을 풀어서 입력 계산</text>
+<rect x="685" y="220" width="220" height="60" rx="8" fill="#ffffff" stroke="#e1e1e1"/><text x="795" y="245" font-weight="700">dumb 퍼저</text><text x="795" y="267" font-size="13" fill="#535353">입력을 던지기만 함</text>
+<rect x="685" y="292" width="220" height="60" rx="8" fill="#ffffff" stroke="#e1e1e1"/><text x="795" y="317" font-weight="700">커버리지 기반</text><text x="795" y="339" font-size="13" fill="#535353">새 경로를 연 입력을 다시 활용</text>
+</g>
+</g>
+</svg>

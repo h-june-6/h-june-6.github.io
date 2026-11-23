@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 590" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR','Noto Sans CJK KR',sans-serif">
+<rect width="880" height="590" rx="16" fill="#fafafa"/>
+<g transform="translate(-20,0)">
+<rect x="130" y="40" width="350" height="220" rx="10" fill="#f0f0f0"/>
+<rect x="500" y="40" width="350" height="220" rx="10" fill="#f0f0f0" opacity="0.6"/>
+<rect x="130" y="280" width="350" height="220" rx="10" fill="#e7e7e7"/>
+<rect x="500" y="280" width="350" height="220" rx="10" fill="#e7e7e7" opacity="0.6"/>
+<g font-size="14" fill="#535353" text-anchor="middle">
+<text x="305" y="66">변이 + 커버리지</text><text x="675" y="66">생성 + 커버리지</text>
+<text x="305" y="306">변이 + 피드백 없음</text><text x="675" y="306">생성 + 피드백 없음(거의)</text>
+</g>
+<g font-size="17" font-weight="700" text-anchor="middle" fill="#171717">
+<rect x="160" y="95" width="130" height="44" rx="22" fill="#ffffff" stroke="#6f6f6f" stroke-width="2"/><text x="225" y="123">AFL</text>
+<rect x="320" y="95" width="130" height="44" rx="22" fill="#ffffff" stroke="#6f6f6f" stroke-width="2"/><text x="385" y="123">AFL++</text>
+<rect x="160" y="165" width="130" height="44" rx="22" fill="#ffffff" stroke="#6f6f6f" stroke-width="2"/><text x="225" y="193">libFuzzer</text>
+<rect x="320" y="165" width="130" height="44" rx="22" fill="#ffffff" stroke="#6f6f6f" stroke-width="2"/><text x="385" y="193">honggfuzz</text>
+<rect x="610" y="130" width="130" height="44" rx="22" fill="#ffffff" stroke="#6f6f6f" stroke-width="2"/><text x="675" y="158">syzkaller</text>
+<rect x="240" y="370" width="130" height="44" rx="22" fill="#ffffff" stroke="#727272" stroke-width="2"/><text x="305" y="398">Radamsa</text>
+<rect x="530" y="370" width="130" height="44" rx="22" fill="#ffffff" stroke="#727272" stroke-width="2"/><text x="595" y="398">boofuzz</text>
+<rect x="690" y="370" width="130" height="44" rx="22" fill="#ffffff" stroke="#727272" stroke-width="2"/><text x="755" y="398">Peach</text>
+</g>
+<g font-size="16" font-weight="700" fill="#282828" text-anchor="middle">
+<text x="305" y="535">변이 (Mutation)</text><text x="675" y="535">생성 (Generation)</text>
+<text x="490" y="565" font-size="13" font-weight="400" fill="#727272">← 입력 생성 방식 →</text>
+<text transform="translate(60,150) rotate(-90)">커버리지 피드백</text>
+<text transform="translate(60,390) rotate(-90)">피드백 없음</text>
+</g>
+</g>
+</svg>
