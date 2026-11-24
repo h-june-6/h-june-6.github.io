@@ -1,6 +1,6 @@
 ---
 layout: page
-title: 블로그 / 기술문서 / 리서치
+title: 블로그/기술문서/리서치
 icon: fas fa-pen-nib
 order: 4
 group: category
