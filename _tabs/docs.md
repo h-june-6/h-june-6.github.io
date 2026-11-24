@@ -1,19 +1,16 @@
 ---
 layout: page
-title: 블로그 / 기술문서
+title: 블로그 / 기술문서 / 리서치
 icon: fas fa-pen-nib
 order: 4
 group: category
-category_keys: [블로그, 기술문서]
+subgroup: docs-sub
 ---
-{%- assign posts = "" | split: "" -%}
-{%- for key in page.category_keys -%}
-  {%- if site.categories[key] -%}
-    {%- assign posts = posts | concat: site.categories[key] -%}
-  {%- endif -%}
-{%- endfor -%}
-{%- assign posts = posts | uniq | sort: "date" | reverse -%}
-{%- if posts.size > 0 -%}
+{%- assign subs = site.tabs | where: 'group', 'docs-sub' -%}
+{%- for st in subs -%}
+<h2 class="h4 mt-4"><a href="{{ st.url | relative_url }}">{{ st.title }}</a></h2>
+{%- assign posts = site.categories[st.category_key] -%}
+{%- if posts and posts.size > 0 -%}
 <ul class="content ps-0">
   {%- for post in posts -%}
   <li class="d-flex justify-content-between px-md-3">
@@ -26,3 +23,4 @@ category_keys: [블로그, 기술문서]
 {%- else -%}
 <p class="text-muted">아직 작성된 글이 없어요.</p>
 {%- endif -%}
+{%- endfor -%}

@@ -1,7 +1,7 @@
 ---
 title: "[개인정보 판례 분석] 네이트·싸이월드 해킹 사건 (대법원 2015다24904)"
 date: 2026-11-24 01:00:00 +0900
-categories: [기술문서]
+categories: [리서치]
 tags: [case-law, privacy, data-breach, sk-communications, keylogging, supply-chain]
 ---
 

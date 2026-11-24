@@ -1,7 +1,7 @@
 ---
 title: "[최신 보안 사고 사례 분석] 쿠팡 3,370만 계정 유출: 퇴사자가 들고 나간 서명키 하나"
 date: 2026-11-24 00:35:00 +0900
-categories: [기술문서]
+categories: [리서치]
 tags: [incident-analysis, coupang, insider-threat, authentication, token-forgery, key-management]
 mermaid: true
 ---

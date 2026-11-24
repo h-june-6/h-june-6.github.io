@@ -1,7 +1,7 @@
 ---
 title: "[최신 보안 사고 사례 분석] 티빙 3,954만 계정 유출: 소스코드에 박혀 있던 운영 접속키 43개"
 date: 2026-11-24 00:36:00 +0900
-categories: [기술문서]
+categories: [리서치]
 tags: [incident-analysis, tving, secret-management, hardcoded-credentials, cloud-security, aws]
 mermaid: true
 ---

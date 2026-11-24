@@ -36,18 +36,42 @@
           </summary>
           <ul class="nav sub-nav">
             {% for ct in cat_tabs %}
+              {%- if ct.subgroup -%}
+                {%- assign sub_tabs = site.tabs | where: 'group', ct.subgroup -%}
+                {%- assign sub_open = false -%}
+                {%- for st in sub_tabs -%}{%- if st.url == page.url -%}{%- assign sub_open = true -%}{%- endif -%}{%- endfor -%}
+                {%- if ct.url == page.url -%}{%- assign sub_open = true -%}{%- endif -%}
+                <li class="nav-item nav-group nav-subgroup">
+                  <details{% if sub_open %} open{% endif %}>
+                    <summary class="nav-link">
+                      <span>{{ ct.title }}</span>
+                      <i class="fas fa-chevron-down nav-caret"></i>
+                    </summary>
+                    <ul class="nav sub-nav">
+                      {% for st in sub_tabs %}
+                        <li class="nav-item{% if st.url == page.url %}{{ " active" }}{% endif %}">
+                          <a href="{{ st.url | relative_url }}" class="nav-link">
+                            <span>{{ st.title }}</span>
+                          </a>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  </details>
+                </li>
+              {%- else -%}
               <li class="nav-item{% if ct.url == page.url %}{{ " active" }}{% endif %}">
                 <a href="{{ ct.url | relative_url }}" class="nav-link">
                   <span>{{ ct.title }}</span>
                 </a>
               </li>
+              {%- endif -%}
             {% endfor %}
           </ul>
         </details>
       </li>
       <!-- the real tabs -->
       {% for tab in site.tabs %}
-        {%- if tab.group == 'category' or tab.nav == false -%}{%- continue -%}{%- endif -%}
+        {%- if tab.group == 'category' or tab.group == 'docs-sub' or tab.nav == false -%}{%- continue -%}{%- endif -%}
         <li class="nav-item{% if tab.url == page.url %}{{ " active" }}{% endif %}">
           <a href="{{ tab.url | relative_url }}" class="nav-link">
             <i class="fa-fw {{ tab.icon }}"></i>

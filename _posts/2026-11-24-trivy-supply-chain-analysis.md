@@ -1,7 +1,7 @@
 ---
 title: "[최신 보안 사고 사례 분석] Trivy 공급망 공격(CVE-2026-33634): 보안 스캐너가 무기가 된 날"
 date: 2026-11-24 00:37:00 +0900
-categories: [기술문서]
+categories: [리서치]
 tags: [incident-analysis, supply-chain, github-actions, trivy, ci-cd, teampcp, credential-rotation]
 mermaid: true
 ---

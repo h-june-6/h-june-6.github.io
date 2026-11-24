@@ -96,6 +96,28 @@
   }
 }
 
+/* ---------- 사이드바: 카테고리 안의 하위 그룹 (블로그 / 기술문서 / 리서치) ---------- */
+#sidebar li.nav-group li.nav-subgroup {
+  padding-left: 0;
+  padding-right: 0;
+  margin-top: 0.1rem;
+
+  > details > summary {
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+    padding-left: 3.75rem;
+    font-weight: 500;
+
+    span {
+      font-size: 85%;
+    }
+  }
+
+  ul.sub-nav li.nav-item a.nav-link {
+    padding-left: 5rem;
+  }
+}
+
 /* ---------- 글 하단: 라이선스 문구와 공유하기 버튼 숨김 ---------- */
 .post-tail-bottom {
   display: none !important;
